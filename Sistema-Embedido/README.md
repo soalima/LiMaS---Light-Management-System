@@ -1,0 +1,1 @@
+Placeholder para carpeta Sistema-Embebido que contendrá el código fuente del SE

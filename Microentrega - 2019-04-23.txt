@@ -6,4 +6,5 @@ Hardware a usar:
 		* Modulo bluetooth Hc05/06
 		* Modulo Sensor de luz ambiente LDR
 		* Modulo Sensor de movimiento PIR HC-SR501
+		* Buzzer Zumbador Activo De 5v
 		* Luz LED

@@ -1,4 +1,4 @@
-LiMaS - Light Management System
+﻿LiMaS - Light Management System
 
 Proyecto Sistemas Operativos Avanzados
 
@@ -21,5 +21,12 @@ Idea
 
    Todas las luces tienen consigo un fotosensor, parlante, sensor de proximidad y sensor de sonido. Se puede configurar un modo de funcionamiento customizado y agrupamiento de varias de estas desde la aplicacion Android, estando precargados el modo para exteriores y el de interiores. Todas las luces se conectan al arduino principal el cual lleva el control de las estadisticas y consumo, y este las envia al usuario a travez de la aplicacion.
     
-  
-    
+Hardware a usar en el proyecto:
+	* Arduino Mega 2560
+	* Modulo bluetooth Hc05/06
+	Por cada Nodo:
+		* Modulo Sensor De Sonido Microfono Con Comparador Arduino
+		* Modulo Sensor de luz ambiente LDR
+		* Modulo Sensor de movimiento PIR HC-SR501
+		* Buzzer Zumbador Activo De 5v
+		* Luz LED   

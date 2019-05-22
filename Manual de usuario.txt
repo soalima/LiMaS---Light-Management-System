@@ -1,0 +1,23 @@
+﻿Manual de usuario
+
+
+Paso 1
+Encendido de luces
+1) al aplaudir se encenderán las luces de la habitación.
+2)las luces se encenderan al detectar presencia en el ambiente
+
+
+Paso 2
+Nivelación de las luces
+Las luces se nivelaran de acuerdo a la luz del ambiente.Desde máxima potencia a apagadas, pasando por los estados intermedios de acuerdo a la intensidad lumínica del medio
+
+
+Paso 3
+Alarma
+Si se detectan movimientos sospechosos (momentos donde no se frecuenta detectar movimiento) enciende las luces y sonará una alarma informando al usuario sobre esta actividad
+
+
+Paso 4
+Apagado de luz
+1) al aplaudir nuevamente.
+2) al dejar de detectar presencia.

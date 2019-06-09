@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_principal"
+            android:title="Principal" />
+        <item
+            android:id="@+id/nav_bluetooth"
+            android:title="Conectar Bluetooth" />
+        <item
+            android:id="@+id/nav_control_luz"
+            android:title="Control Luz" />
+        <item
+            android:id="@+id/nav_config_luz"
+            android:title="Configurar Luz" />
+        <item
+            android:id="@+id/nav_estadistica"
+            android:title="Estadistica" />
+    </group>
+</menu>

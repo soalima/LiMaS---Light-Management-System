@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Limas1.1</string>
+    <string name="navigation_draw_open">Abrir cajon de navegación</string>
+    <string name="navigation_draw_close">Cerrar cajon de navegación</string>
+</resources>

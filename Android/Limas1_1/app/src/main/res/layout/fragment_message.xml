@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:text="Fragment de mensaje"
+            android:textSize="30dp" />
+
+        <TextView
+            android:id="@+id/pasosView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="141dp"
+            android:text="Pasos:"
+            android:textColor="@android:color/black"
+            android:textSize="25dp" />
+
+        <TextView
+            android:id="@+id/paso1View"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/pasosView"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="40dp"
+            android:text="1- Ir a Bluetooth y conectar con la luz a usar"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/paso2View"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/paso1View"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="40dp"
+            android:text="2- Ir a control de luz y elegir alguna interaccion"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/paso3View"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/paso2View"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="40dp"
+            android:text="3- ir a conf para cambiar la configuracion de la luz"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/paso4View"
+            android:layout_width="322dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/paso3View"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="40dp"
+            android:paddingBottom="30dp"
+            android:text="4- Ir a Estadisticas para ver el historial de uso de la lampara conectada"
+            android:textColor="@android:color/black" />
+    </RelativeLayout>
+</ScrollView>

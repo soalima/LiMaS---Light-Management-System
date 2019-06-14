@@ -2,4 +2,16 @@
     <string name="app_name">Limas1.1</string>
     <string name="navigation_draw_open">Abrir cajon de navegación</string>
     <string name="navigation_draw_close">Cerrar cajon de navegación</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="text_bluetooth_off">Bluetooth is Off</string>
+    <string name="text_bluetooth_on">Bluetooth is On</string>
+    <string name="text_enable">Enable</string>
+    <string name="text_disable">Disable</string>
+    <string name="text_view_paired">Paired Devices</string>
+    <string name="text_scan_devices">Scan Devices</string>
+    <string name="text_stop_scan">Scan Devices</string>
+    <string name="text_list_paired_devices">Paired Devices</string>
+    <string name="text_list_devices">List of Devices</string>
+    <string name="text_pair">Pair</string>
 </resources>

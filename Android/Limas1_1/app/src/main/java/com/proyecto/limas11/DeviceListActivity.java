@@ -1,6 +1,5 @@
 package com.proyecto.limas11;
 
-import com.proyecto.limas11.R;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -17,6 +16,9 @@ import android.content.IntentFilter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+/*********************************************************************************************************
+ * Activity que muestra el listado de los dispositivos bluethoot encontrados
+ **********************************************************************************************************/
 
 public class DeviceListActivity extends Activity
 {
@@ -74,7 +76,6 @@ public class DeviceListActivity extends Activity
         try {
             Method method = device.getClass().getMethod("createBond", (Class[]) null);
             method.invoke(device, (Object[]) null);
-            showToast("Metodo pairDevice");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,11 +98,10 @@ public class DeviceListActivity extends Activity
             //Obtengo los datos del dispostivo seleccionado del listview por el usuario
             BluetoothDevice device = mDeviceList.get(position);
 
-            //Se checkea si el si positivo ya esta emparejado
+            //Se checkea si el sipositivo ya esta emparejado
             if (device.getBondState() == BluetoothDevice.BOND_BONDED)
             {
                 //Si esta emparejado,quiere decir que se selecciono desemparjar y entonces se le desempareja
-                showToast("Desemparejar...");
                 unpairDevice(device);
             }
             else
@@ -111,7 +111,7 @@ public class DeviceListActivity extends Activity
                 showToast("Emparejando");
                 posicionListBluethoot = position;
                 pairDevice(device);
-                showToast("Emparejado!");
+
             }
         }
     };
@@ -155,3 +155,5 @@ public class DeviceListActivity extends Activity
         }
     };
 }
+
+

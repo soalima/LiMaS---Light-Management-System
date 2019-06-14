@@ -15,7 +15,7 @@ void setup() {
   pinMode(BUZZERPin, OUTPUT);  //definir pin como salida del buzzer (pwm)
   pinMode(LEDPin, OUTPUT);//Se inicializa como OUTPUT el pin a usar. Debe ser PWM
   pinMode(PIRPin, INPUT); 
-    pinMode(MICPin, INPUT); 
+  pinMode(MICPin, INPUT); 
 
   Serial.begin(9600);
 }/******
@@ -149,7 +149,7 @@ int regularIntensidadLuminica(int lectura_FotoResistencia){
     int maximoLed = 250;
     float deltaPotenciaLed = maximoLed - minimoLed; // delta valores del led
     float porcentajeLuzAmbiente = (lectura_FotoResistencia - deltaPotenciaLed)/deltaLuzAmbiente;
-    float porcentajeIluminacionLED = 1- porcentajeLuzAmbiente;
+    float porcentajeIluminacionLED = 1 - porcentajeLuzAmbiente;
     int valorLed = minimoLed + (porcentajeIluminacionLED * deltaPotenciaLed);
     //Serial.println(valorLed);
     return valorLed;

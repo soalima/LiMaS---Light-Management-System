@@ -73,12 +73,12 @@ public class activity_comunicacion extends Activity
     //socketBluethoot
     public void onResume() {
         super.onResume();
-
+        showToast("ENTRAMOS AL ONRESUME DE ACTIVITY COMUNICACION");
         //Obtengo el parametro, aplicando un Bundle, que me indica la Mac Adress del HC05
         Intent intent=getIntent();
         Bundle extras=intent.getExtras();
 
-        address= extras.getString("Direccion_Bluethoot");
+        address= extras.getString("Direccion_Bluetooth");
 
         BluetoothDevice device = btAdapter.getRemoteDevice(address);
 
@@ -229,7 +229,7 @@ public class activity_comunicacion extends Activity
                     bytes = mmInStream.read(buffer);
                     String readMessage = new String(buffer, 0, bytes);
 
-                     //se muestran en el layout de la activity, utilizando el handler del hilo
+                    //se muestran en el layout de la activity, utilizando el handler del hilo
                     // principal antes mencionado
                     bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget();
                 } catch (IOException e) {

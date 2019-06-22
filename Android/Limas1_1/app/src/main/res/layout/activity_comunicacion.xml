@@ -55,18 +55,4 @@ android:theme="@style/AppTheme">
     android:layout_toEndOf="@+id/btnApagar"
     tools:ignore="HardcodedText" />
 
-    <!--
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/txtValorPotenciometro"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
-        android:adjustViewBounds="false"
-        android:contentDescription=""
-        tools:ignore="ContentDescription" />
-    -->
 </RelativeLayout>

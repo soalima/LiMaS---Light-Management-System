@@ -4,7 +4,13 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -22,9 +28,8 @@ import java.util.UUID;
  **********************************************************************************************************/
 
 //******************************************** Hilo principal del Activity**************************************
-public class activity_comunicacion extends Activity
+public class activity_comunicacion extends Activity implements SensorEventListener
 {
-
     Button btnApagar;
     Button btnEncender;
     TextView txtPotenciometro;
@@ -32,6 +37,7 @@ public class activity_comunicacion extends Activity
     Handler bluetoothIn;
     final int handlerState = 0; //used to identify handler message
 
+    private long lastUpdate;
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
     private StringBuilder recDataString = new StringBuilder();
@@ -43,6 +49,8 @@ public class activity_comunicacion extends Activity
 
     // String for MAC address del Hc05
     private static String address = null;
+
+    private SensorManager sensorManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -66,19 +74,25 @@ public class activity_comunicacion extends Activity
         btnEncender.setOnClickListener(btnEncenderListener);
         btnApagar.setOnClickListener(btnApagarListener);
 
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor (Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor (Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor (Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    @Override
+        @Override
     //Cada vez que se detecta el evento OnResume se establece la comunicacion con el HC05, creando un
     //socketBluethoot
     public void onResume() {
         super.onResume();
-        showToast("ENTRAMOS AL ONRESUME DE ACTIVITY COMUNICACION");
+
         //Obtengo el parametro, aplicando un Bundle, que me indica la Mac Adress del HC05
         Intent intent=getIntent();
         Bundle extras=intent.getExtras();
 
-        address= extras.getString("Direccion_Bluetooth");
+        address= extras.getString("Direccion_Bluethoot");
 
         BluetoothDevice device = btAdapter.getRemoteDevice(address);
 
@@ -104,7 +118,7 @@ public class activity_comunicacion extends Activity
             }
             catch (IOException e2)
             {
-                //insert code to deal with this
+                finish();
             }
         }
 
@@ -124,6 +138,7 @@ public class activity_comunicacion extends Activity
     public void onPause()
     {
         super.onPause();
+
         try
         {
             //Don't leave Bluetooth sockets open when leaving activity
@@ -132,6 +147,19 @@ public class activity_comunicacion extends Activity
             //insert code to deal with this
         }
     }
+
+    /*
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try
+        {
+            //Don't leave Bluetooth sockets open when leaving activity
+            btSocket.close();
+        } catch (IOException e6) {
+            //insert code to deal with this
+        }
+    }*/
 
     //Metodo que crea el socket bluethoot
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
@@ -229,7 +257,7 @@ public class activity_comunicacion extends Activity
                     bytes = mmInStream.read(buffer);
                     String readMessage = new String(buffer, 0, bytes);
 
-                    //se muestran en el layout de la activity, utilizando el handler del hilo
+                     //se muestran en el layout de la activity, utilizando el handler del hilo
                     // principal antes mencionado
                     bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget();
                 } catch (IOException e) {
@@ -246,11 +274,51 @@ public class activity_comunicacion extends Activity
                 mmOutStream.write(msgBuffer);                //write bytes over BT connection via outstream
             } catch (IOException e) {
                 //if you cannot write, close the application
-                showToast("La conexion fallo");
+                //showToast("La conexion fallo");
                 finish();
 
             }
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // TODO Auto-generated method stub
+        if(event.sensor.getType() == Sensor.TYPE_PROXIMITY){
+            if(event.values[0] == 3)
+                mConnectedThread.write("3\n");
+                mConnectedThread.write("PUTO EL QUE LEE\n");
+        }
+
+       /* if(event.sensor.getType() == Sensor.TYPE_LIGHT){
+                mConnectedThread.write("5\n");
+                mConnectedThread.write(Integer.toString((int) event.values[0]));
+                showToast(Integer.toString((int) event.values[0]));
+        }*/
+
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+            float[] values = event.values;
+
+            float x1 = values[0];
+            float y1 = values[1];
+
+            float accelationSquareRoot = (x1 * x1)
+                    / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+            long actualTime = event.timestamp;
+            if (accelationSquareRoot >= 4) //
+            {
+                if (actualTime - lastUpdate < 1000) {
+                    return;
+                }
+                lastUpdate = actualTime;
+                mConnectedThread.write("4\n");
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 
 }

@@ -16,8 +16,6 @@ import android.content.IntentFilter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.proyecto.limas11.DeviceListAdapter;
-
 /*********************************************************************************************************
  * Activity que muestra el listado de los dispositivos bluethoot encontrados
  **********************************************************************************************************/
@@ -142,14 +140,19 @@ public class DeviceListActivity extends Activity
                     //se inicia el Activity de comunicacion con el bluethoot, para transferir los datos.
                     //Para eso se le envia como parametro la direccion(MAC) del bluethoot Arduino
                     String direccionBluethoot = dispositivo.getAddress();
+
+                    ((AlmacenGlobal) getApplication()).setDirBluetooth(direccionBluethoot);
+
+
                     Intent i = new Intent(DeviceListActivity.this, activity_comunicacion.class);
-                    i.putExtra("Direccion_Bluetooth", direccionBluethoot);
-                    showToast("Intento comenzar la ativity");
+                    i.putExtra("Direccion_Bluethoot", direccionBluethoot);
+
                     startActivity(i);
 
                 }  //si se detrecto un desaemparejamiento
                 else if (state == BluetoothDevice.BOND_NONE && prevState == BluetoothDevice.BOND_BONDED) {
                     showToast("No emparejado");
+                    ((AlmacenGlobal) getApplication()).setDirBluetooth(null);
                 }
 
                 mAdapter.notifyDataSetChanged();

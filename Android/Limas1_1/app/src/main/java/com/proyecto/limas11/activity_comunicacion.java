@@ -15,8 +15,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,11 +31,14 @@ import java.util.UUID;
  **********************************************************************************************************/
 
 //******************************************** Hilo principal del Activity**************************************
-public class activity_comunicacion extends Activity implements SensorEventListener
-{
+public class activity_comunicacion extends Activity implements SensorEventListener {
     Button btnApagar;
     Button btnEncender;
     TextView txtPotenciometro;
+    Switch switchL1;
+    Switch switchL2;
+    Boolean switchStateL1;
+    Boolean switchStateL2;
 
     Handler bluetoothIn;
     final int handlerState = 0; //used to identify handler message
@@ -53,15 +59,19 @@ public class activity_comunicacion extends Activity implements SensorEventListen
     private SensorManager sensorManager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comunicacion);
 
         //Se definen los componentes del layout
-        btnApagar=(Button)findViewById(R.id.btnApagar);
-        btnEncender=(Button)findViewById(R.id.btnEncender);
-        txtPotenciometro=(TextView)findViewById(R.id.txtValorPotenciometro);
+        btnApagar = (Button) findViewById(R.id.btnApagar);
+        btnEncender = (Button) findViewById(R.id.btnEncender);
+        txtPotenciometro = (TextView) findViewById(R.id.txtValorPotenciometro);
+        switchL1 = (Switch) findViewById(R.id.switchLuz1);
+        switchL2 = (Switch) findViewById(R.id.switchLuz2);
+
+        switchL1.setChecked(false);
+        switchL2.setChecked(false);
 
         //obtengo el adaptador del bluethoot
         btAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -77,47 +87,38 @@ public class activity_comunicacion extends Activity implements SensorEventListen
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor (Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor (Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor (Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-        @Override
+    @Override
     //Cada vez que se detecta el evento OnResume se establece la comunicacion con el HC05, creando un
     //socketBluethoot
     public void onResume() {
         super.onResume();
 
         //Obtengo el parametro, aplicando un Bundle, que me indica la Mac Adress del HC05
-        Intent intent=getIntent();
-        Bundle extras=intent.getExtras();
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
 
-        address= extras.getString("Direccion_Bluethoot");
+        address = extras.getString("Direccion_Bluethoot");
 
         BluetoothDevice device = btAdapter.getRemoteDevice(address);
 
         //se realiza la conexion del Bluethoot crea y se conectandose a atraves de un socket
-        try
-        {
+        try {
             btSocket = createBluetoothSocket(device);
-        }
-        catch (IOException e)
-        {
-            showToast( "La creacción del Socket fallo");
+        } catch (IOException e) {
+            showToast("La creacción del Socket fallo");
         }
         // Establish the Bluetooth socket connection.
-        try
-        {
+        try {
             btSocket.connect();
-        }
-        catch (IOException e)
-        {
-            try
-            {
+        } catch (IOException e) {
+            try {
                 btSocket.close();
-            }
-            catch (IOException e2)
-            {
+            } catch (IOException e2) {
                 finish();
             }
         }
@@ -135,12 +136,10 @@ public class activity_comunicacion extends Activity implements SensorEventListen
 
     @Override
     //Cuando se ejecuta el evento onPause se cierra el socket Bluethoot, para no recibiendo datos
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
 
-        try
-        {
+        try {
             //Don't leave Bluetooth sockets open when leaving activity
             btSocket.close();
         } catch (IOException e2) {
@@ -164,26 +163,22 @@ public class activity_comunicacion extends Activity implements SensorEventListen
     //Metodo que crea el socket bluethoot
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
 
-        return  device.createRfcommSocketToServiceRecord(BTMODULEUUID);
+        return device.createRfcommSocketToServiceRecord(BTMODULEUUID);
     }
 
     //Handler que sirve que permite mostrar datos en el Layout al hilo secundario
-    private Handler Handler_Msg_Hilo_Principal ()
-    {
+    private Handler Handler_Msg_Hilo_Principal() {
         return new Handler() {
-            public void handleMessage(android.os.Message msg)
-            {
+            public void handleMessage(android.os.Message msg) {
                 //si se recibio un msj del hilo secundario
-                if (msg.what == handlerState)
-                {
+                if (msg.what == handlerState) {
                     //voy concatenando el msj
                     String readMessage = (String) msg.obj;
                     recDataString.append(readMessage);
                     int endOfLineIndex = recDataString.indexOf("\r\n");
 
                     //cuando recibo toda una linea la muestro en el layout
-                    if (endOfLineIndex > 0)
-                    {
+                    if (endOfLineIndex > 0) {
                         String dataInPrint = recDataString.substring(0, endOfLineIndex);
                         txtPotenciometro.setText(dataInPrint);
 
@@ -199,16 +194,29 @@ public class activity_comunicacion extends Activity implements SensorEventListen
     private View.OnClickListener btnEncenderListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mConnectedThread.write("1");    // Send "1" via Bluetooth
-            showToast("Encender el LED");        }
+            if (switchL1.isChecked()) {
+                mConnectedThread.write("1");
+                showToast("Encender el LED 1");
+            }// Send "1" via Bluetooth
+            if (switchL2.isChecked()) {
+                mConnectedThread.write("5");
+                showToast("Encender el LED 2");
+            }
+        }
     };
 
     //Listener del boton encender que envia  msj para Apagar Led a Arduino atraves del Bluethoot
     private View.OnClickListener btnApagarListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mConnectedThread.write("2");    // Send "0" via Bluetooth
-            showToast("Apagar el LED");
+            if (switchL1.isChecked()) {
+                mConnectedThread.write("2");
+                showToast("Apagar el LED 1");
+            }// Send "1" via Bluetooth
+            if (switchL2.isChecked()) {
+                mConnectedThread.write("6");
+                showToast("Apagar el LED 2");
+            }
         }
     };
 
@@ -220,44 +228,39 @@ public class activity_comunicacion extends Activity implements SensorEventListen
     //******************************************** Hilo secundario del Activity**************************************
     //*************************************** recibe los datos enviados por el HC05**********************************
 
-    private class ConnectedThread extends Thread
-    {
+    private class ConnectedThread extends Thread {
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
 
         //Constructor de la clase del hilo secundario
-        public ConnectedThread(BluetoothSocket socket)
-        {
+        public ConnectedThread(BluetoothSocket socket) {
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
-            try
-            {
+            try {
                 //Create I/O streams for connection
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
         }
 
         //metodo run del hilo, que va a entrar en una espera activa para recibir los msjs del HC05
-        public void run()
-        {
+        public void run() {
             byte[] buffer = new byte[256];
             int bytes;
 
             //el hilo secundario se queda esperando mensajes del HC05
-            while (true)
-            {
-                try
-                {
+            while (true) {
+                try {
                     //se leen los datos del Bluethoot
                     bytes = mmInStream.read(buffer);
                     String readMessage = new String(buffer, 0, bytes);
 
-                     //se muestran en el layout de la activity, utilizando el handler del hilo
+                    //se muestran en el layout de la activity, utilizando el handler del hilo
                     // principal antes mencionado
                     bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget();
                 } catch (IOException e) {
@@ -284,10 +287,9 @@ public class activity_comunicacion extends Activity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         // TODO Auto-generated method stub
-        if(event.sensor.getType() == Sensor.TYPE_PROXIMITY){
-            if(event.values[0] == 3)
-                mConnectedThread.write("3\n");
-                mConnectedThread.write("PUTO EL QUE LEE\n");
+        if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+            if (event.values[0] == 3)
+                mConnectedThread.write("3");
         }
 
        /* if(event.sensor.getType() == Sensor.TYPE_LIGHT){
@@ -296,13 +298,13 @@ public class activity_comunicacion extends Activity implements SensorEventListen
                 showToast(Integer.toString((int) event.values[0]));
         }*/
 
-        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float[] values = event.values;
 
-            float x1 = values[0];
-            float y1 = values[1];
+            float x = values[0];
+            float y = values[1];
 
-            float accelationSquareRoot = (x1 * x1)
+            float accelationSquareRoot = (x * x + y * y)
                     / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
             long actualTime = event.timestamp;
             if (accelationSquareRoot >= 4) //
@@ -311,7 +313,14 @@ public class activity_comunicacion extends Activity implements SensorEventListen
                     return;
                 }
                 lastUpdate = actualTime;
-                mConnectedThread.write("4\n");
+                if(switchL1.isChecked()){
+                    mConnectedThread.write("4");
+                    showToast("Cambio estado LED 1");
+                }
+                if(switchL2.isChecked()){
+                    mConnectedThread.write("7");
+                    showToast("Cambio estado LED 2");
+                }
             }
         }
     }

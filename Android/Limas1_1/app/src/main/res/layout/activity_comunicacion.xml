@@ -12,6 +12,31 @@ android:paddingTop="@dimen/activity_vertical_margin"
 tools:context="com.proyecto.limas11.activity_comunicacion"
 android:theme="@style/AppTheme">
 
+    <Switch
+        android:id="@+id/switchLuz1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="157dp"
+        android:layout_marginTop="27dp"
+        android:layout_marginEnd="90dp"
+        android:checked="false"
+        android:text="Seleccionada"
+        android:textOff="NO"
+        android:textOn="SI" />
+
+    <TextView
+        android:id="@+id/textViewLuz2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="139dp"
+        android:text="Luz 2:" />
+
     <EditText
         android:id="@+id/txtValorPotenciometro"
         android:layout_width="wrap_content"
@@ -28,6 +53,7 @@ android:theme="@style/AppTheme">
         android:textColor="@android:color/holo_red_light"
         android:textSize="50sp"
         android:textStyle="normal|bold"
+        android:visibility="gone"
         tools:ignore="HardcodedText" />
 
 <Button
@@ -43,16 +69,59 @@ android:theme="@style/AppTheme">
     android:layout_alignParentStart="true"
     tools:ignore="HardcodedText" />
 
-<Button
-    android:text="Encender"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="56dp"
-    android:layout_marginStart="56dp"
-    android:id="@+id/btnEncender"
-    android:layout_below="@+id/txtValorPotenciometro"
-    android:layout_toRightOf="@+id/btnApagar"
-    android:layout_toEndOf="@+id/btnApagar"
-    tools:ignore="HardcodedText" />
+    <Button
+        android:id="@+id/btnEncender"
+        android:layout_width="104dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="88dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="142dp"
+        android:layout_toEndOf="@+id/btnApagar"
+        android:layout_toRightOf="@+id/btnApagar"
+        android:text="Encender"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/textViewLuz1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:text="Luz 1:" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="259dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="246dp"
+        android:layout_marginEnd="72dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:text="CUALQUIER ACCION EN ESTA ACTIVITY SOLO SE APLICARA A LA LUZ SELECCIONADA EXCEPTO EL MODO ALARMA" />
+
+    <Switch
+        android:id="@+id/switchLuz2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="157dp"
+        android:layout_marginTop="134dp"
+        android:layout_marginEnd="90dp"
+        android:checked="false"
+        android:text="Seleccionada"
+        android:textOff="NO"
+        android:textOn="SI" />
 
 </RelativeLayout>

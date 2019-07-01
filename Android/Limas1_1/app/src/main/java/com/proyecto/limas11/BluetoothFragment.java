@@ -42,7 +42,9 @@ public class BluetoothFragment extends Fragment {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.READ_EXTERNAL_STORAGE};
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+    };
     public static final int MULTIPLE_PERMISSIONS = 10; // code you want.
 
     private ProgressDialog mProgressDlg;

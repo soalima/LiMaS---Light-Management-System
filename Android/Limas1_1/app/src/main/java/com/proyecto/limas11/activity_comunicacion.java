@@ -1,5 +1,6 @@
 package com.proyecto.limas11;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -7,10 +8,13 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -21,10 +25,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
+import static com.proyecto.limas11.BluetoothFragment.MULTIPLE_PERMISSIONS;
 
 /*********************************************************************************************************
  * Activity que muestra realiza la comunicacion con Arduino
@@ -37,8 +48,14 @@ public class activity_comunicacion extends Activity implements SensorEventListen
     TextView txtPotenciometro;
     Switch switchL1;
     Switch switchL2;
+    Switch swLinterna;
     Boolean switchStateL1;
     Boolean switchStateL2;
+    boolean prendertorch;
+    boolean isflashon;
+
+    static Camera cam = null;
+    private String permissions = Manifest.permission.CAMERA;
 
     Handler bluetoothIn;
     final int handlerState = 0; //used to identify handler message
@@ -69,9 +86,11 @@ public class activity_comunicacion extends Activity implements SensorEventListen
         txtPotenciometro = (TextView) findViewById(R.id.txtValorPotenciometro);
         switchL1 = (Switch) findViewById(R.id.switchLuz1);
         switchL2 = (Switch) findViewById(R.id.switchLuz2);
+        swLinterna=(Switch)findViewById(R.id.swLinterna);
 
         switchL1.setChecked(false);
         switchL2.setChecked(false);
+        swLinterna.setChecked(false);
 
         //obtengo el adaptador del bluethoot
         btAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -83,6 +102,25 @@ public class activity_comunicacion extends Activity implements SensorEventListen
         //defino los handlers para los botones Apagar y encender
         btnEncender.setOnClickListener(btnEncenderListener);
         btnApagar.setOnClickListener(btnApagarListener);
+        swLinterna.setOnCheckedChangeListener((new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b) {
+                    prendertorch = true;
+                    //tenia esto pero creo que me equivoque de flag :(
+                    //isflashon = true;
+                }  else
+                {
+                    // off(null);
+                    if(isflashon)
+                        off(null);
+                    prendertorch = false;
+
+
+                }
+            }
+
+        }));
 
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -90,6 +128,8 @@ public class activity_comunicacion extends Activity implements SensorEventListen
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
+
+
     }
 
     @Override
@@ -292,13 +332,22 @@ public class activity_comunicacion extends Activity implements SensorEventListen
                 mConnectedThread.write("3");
         }
 
-       /* if(event.sensor.getType() == Sensor.TYPE_LIGHT){
-                mConnectedThread.write("5\n");
+        if(event.sensor.getType() == Sensor.TYPE_LIGHT){
+              /*  mConnectedThread.write("5\n");
                 mConnectedThread.write(Integer.toString((int) event.values[0]));
-                showToast(Integer.toString((int) event.values[0]));
-        }*/
+                showToast(Integer.toString((int) event.values[0]));*/
+            float currentLux = event.values[0];
+            //showToast(Float.toString(currentLux));
+            if (currentLux < 50 && prendertorch == true)
+            {
+                on(null);
+            }
+            else{
+                off(null);
+            }
+        }
 
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && checkPermissions() ) {
             float[] values = event.values;
 
             float x = values[0];
@@ -330,4 +379,65 @@ public class activity_comunicacion extends Activity implements SensorEventListen
 
     }
 
+    public void off(View v){
+        if(isflashon == true){
+            cam = Camera.open();
+            Camera.Parameters p = cam.getParameters();
+            p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            cam.setParameters(p);
+            isflashon = false;
+        }
+    }
+
+    public void on(View v){
+        if(isflashon == false){
+            cam = Camera.open();
+            Camera.Parameters p = cam.getParameters();
+            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            cam.setParameters(p);
+            isflashon = true;
+        }
+    }
+
+    private  boolean checkPermissions() {
+        int result;
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        //Se chequea si la version de Android es menor a la 6
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true;
+        }
+
+
+            result = ContextCompat.checkSelfPermission(activity_comunicacion.this,permissions);
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded.add(permissions);
+            }
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(activity_comunicacion.this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),MULTIPLE_PERMISSIONS );
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MULTIPLE_PERMISSIONS: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permissions granted.
+                    //enableComponent(); // Now you call here what ever you want :)
+                } else {
+                    String perStr = "";
+                    for (String per : permissions) {
+                        perStr += "\n" + per;
+                    }
+                    // permissions list of don't granted permission
+                    Toast.makeText(activity_comunicacion.this, "ATENCION: La aplicacion no funcionara " + "correctamente debido a la falta de Permisos", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
 }

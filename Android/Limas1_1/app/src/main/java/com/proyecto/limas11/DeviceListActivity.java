@@ -108,7 +108,7 @@ public class DeviceListActivity extends Activity
             {
 
                 //Si no esta emparejado,quiere decir que se selecciono emparjar y entonces se le empareja
-                showToast("Emparejando");
+             //   showToast("Emparejando");
                 posicionListBluethoot = position;
                 pairDevice(device);
 
@@ -134,7 +134,7 @@ public class DeviceListActivity extends Activity
                 if (state == BluetoothDevice.BOND_BONDED && prevState == BluetoothDevice.BOND_BONDING)
                 {
                     //Si se detecto que se puedo emparejar el bluethoot
-                    showToast("Emparejado");
+              //      showToast("Emparejado");
                     BluetoothDevice dispositivo = (BluetoothDevice) mAdapter.getItem(posicionListBluethoot);
 
                     //se inicia el Activity de comunicacion con el bluethoot, para transferir los datos.
@@ -151,7 +151,7 @@ public class DeviceListActivity extends Activity
 
                 }  //si se detrecto un desaemparejamiento
                 else if (state == BluetoothDevice.BOND_NONE && prevState == BluetoothDevice.BOND_BONDED) {
-                    showToast("No emparejado");
+                  //  showToast("No emparejado");
                     ((AlmacenGlobal) getApplication()).setDirBluetooth(null);
                 }
 

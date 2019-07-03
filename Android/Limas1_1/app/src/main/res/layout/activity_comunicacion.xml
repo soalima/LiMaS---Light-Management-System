@@ -107,7 +107,8 @@ android:theme="@style/AppTheme">
         android:ems="10"
         android:gravity="start|top"
         android:inputType="textMultiLine"
-        android:text="CUALQUIER ACCION EN ESTA ACTIVITY SOLO SE APLICARA A LA LUZ SELECCIONADA EXCEPTO EL MODO ALARMA" />
+        android:text="CUALQUIER ACCION EN ESTA ACTIVITY SOLO SE APLICARA A LA LUZ SELECCIONADA EXCEPTO EL MODO ALARMA"
+        android:visibility="invisible" />
 
     <Switch
         android:id="@+id/switchLuz2"
@@ -127,15 +128,13 @@ android:theme="@style/AppTheme">
     <Switch
         android:id="@+id/swLinterna"
         android:layout_width="213dp"
-        android:layout_height="52dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
         android:layout_marginStart="77dp"
-        android:layout_marginTop="195dp"
+        android:layout_marginTop="211dp"
         android:layout_marginEnd="105dp"
-        android:layout_marginBottom="468dp"
         android:text="Linterna" />
 
 </RelativeLayout>

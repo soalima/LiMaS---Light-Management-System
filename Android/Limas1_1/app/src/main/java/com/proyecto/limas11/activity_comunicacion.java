@@ -332,22 +332,30 @@ public class activity_comunicacion extends Activity implements SensorEventListen
                 mConnectedThread.write("3");
         }
 
-        if(event.sensor.getType() == Sensor.TYPE_LIGHT){
+        if(event.sensor.getType() == Sensor.TYPE_LIGHT && checkPermissions()){
               /*  mConnectedThread.write("5\n");
                 mConnectedThread.write(Integer.toString((int) event.values[0]));
                 showToast(Integer.toString((int) event.values[0]));*/
-            float currentLux = event.values[0];
-            //showToast(Float.toString(currentLux));
-            if (currentLux < 50 && prendertorch == true)
-            {
-                on(null);
-            }
-            else{
-                off(null);
-            }
+
+            long actualTime = event.timestamp;
+
+                if (actualTime - lastUpdate < 1000) {
+                    return;
+                }
+                lastUpdate = actualTime;
+
+                float currentLux = event.values[0];
+//                showToast(Float.toString(currentLux));
+                if (currentLux < 70 && prendertorch == true) {
+                    on(null);
+                } else {
+                    off(null);
+                }
+
+
         }
 
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && checkPermissions() ) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER  ) {
             float[] values = event.values;
 
             float x = values[0];
@@ -364,11 +372,11 @@ public class activity_comunicacion extends Activity implements SensorEventListen
                 lastUpdate = actualTime;
                 if(switchL1.isChecked()){
                     mConnectedThread.write("4");
-                    showToast("Cambio estado LED 1");
+                   // showToast("Cambio estado LED 1");
                 }
                 if(switchL2.isChecked()){
                     mConnectedThread.write("7");
-                    showToast("Cambio estado LED 2");
+                    //showToast("Cambio estado LED 2");
                 }
             }
         }

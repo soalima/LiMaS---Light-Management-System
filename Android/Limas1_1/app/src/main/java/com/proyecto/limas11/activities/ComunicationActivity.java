@@ -44,8 +44,7 @@ import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSI
 
 //******************************************** Hilo principal del Activity*********************************
 public class ComunicationActivity extends Activity {
-    Button btnApagar, btnEncender;
-    //TextView txtPotenciometro;
+    Button btnApagar, btnEncender, btnEstadisticaL1, btnEstadisticaL2;
     Switch switchL1, switchL2, swLinterna;
     boolean prendertorch, isflashon;
     static Camera cam = null;
@@ -67,7 +66,10 @@ public class ComunicationActivity extends Activity {
         //Se definen los componentes del layout
         btnApagar = (Button) findViewById(R.id.btnApagar);
         btnEncender = (Button) findViewById(R.id.btnEncender);
-        //txtPotenciometro = (TextView) findViewById(R.id.txtValorPotenciometro);
+
+        btnEstadisticaL1 = (Button) findViewById(R.id.btnMNDR8);
+        btnEstadisticaL2 = (Button) findViewById(R.id.btnMNDR9);
+
         switchL1 = (Switch) findViewById(R.id.switchLuz1);
         switchL2 = (Switch) findViewById(R.id.switchLuz2);
         swLinterna = (Switch) findViewById(R.id.swLinterna);
@@ -82,6 +84,9 @@ public class ComunicationActivity extends Activity {
         //defino los handlers para los botones Apagar y encender
         btnEncender.setOnClickListener(btnEncenderListener);
         btnApagar.setOnClickListener(btnApagarListener);
+        btnEstadisticaL1.setOnClickListener(btnEstadisticaL1Listener);
+        btnEstadisticaL2.setOnClickListener(btnEstadisticaL2Listener);
+
         swLinterna.setOnCheckedChangeListener((new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -110,11 +115,7 @@ public class ComunicationActivity extends Activity {
 
             Log.d("ComandoRecepcion", text);
 
-            if (text.equals("8")) {
-                //recepcion en caso de que sea un 8 lo que llega
-            } else if (text.equals("9")) {
-                //recepcion en caso de que sea un 9 lo que llega
-            }
+            showToast(text);
         }
     };
 
@@ -156,11 +157,11 @@ public class ComunicationActivity extends Activity {
         public void onClick(View v) {
             if (switchL1.isChecked()) {
                 enviarComando('1');
-                showToast("Encender el LED 1");
+                //showToast("Encender el LED 1");
             }
             if (switchL2.isChecked()) {
                 enviarComando('5');
-                showToast("Encender el LED 2");
+                //showToast("Encender el LED 2");
             }
         }
     };
@@ -171,15 +172,30 @@ public class ComunicationActivity extends Activity {
         public void onClick(View v) {
             if (switchL1.isChecked()) {
                 enviarComando('2');
-                showToast("Apagar el LED 1");
+                //showToast("Apagar el LED 1");
             }
             if (switchL2.isChecked()) {
                 enviarComando('6');
-                showToast("Apagar el LED 2");
+                //showToast("Apagar el LED 2");
             }
         }
     };
 
+    private View.OnClickListener btnEstadisticaL1Listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            enviarComando('8');
+            //showToast("Presionado boton estadistica luz 1");
+        }
+    };
+
+    private View.OnClickListener btnEstadisticaL2Listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            enviarComando('9');
+            //showToast("Presionado boton estadistica luz 2");
+        }
+    };
 
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -306,9 +322,9 @@ public class ComunicationActivity extends Activity {
         if (device == null) {
             //Si no estoy conectado al bluetooth o se pierde la señal
             // Pido reconectarse
-            showToast("No estás conectado a ningún dispositivo. Conectate vía bluetooth.");
+            //showToast("No estás conectado a ningún dispositivo. Conectate vía bluetooth.");
         } else {
-            showToast("Caracter a enviar: " + comando);
+            //showToast("Caracter a enviar: " + comando);
             byte[] commandInBytes = String.valueOf(comando).getBytes(Charset.defaultCharset());
 
             bluetoothConnection.write(commandInBytes);

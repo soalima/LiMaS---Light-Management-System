@@ -340,11 +340,17 @@ int Verificar_Bluetooth()
       
        Serial.print("tiempo encendido led1 \t");
        Serial.println(Tiempo_Total1);
+       String resultado = "L1: ";
+       resultado = resultado + Tiempo_Total1;
+       Serial3.println(resultado);
     }
       if( c == '9')
     {
       Serial.print("tiempo encendido led2 \t");
       Serial.println(Tiempo_Total2);
+      String resultado = "L2: ";
+       resultado = resultado + Tiempo_Total2;
+      Serial3.println(resultado);
     }
         
   }
@@ -409,7 +415,7 @@ int Encender_Led2()
   inicio2 = millis();         
 }
 
-int Apagar_Led2()
+void Apagar_Led2()
 {
   if(encenderLed2==0)
     return;
@@ -419,6 +425,7 @@ int Apagar_Led2()
   Tiempo_Total2 += Tiempo_Parcial2;  
   encenderLed2=0 ; 
 }
+
 int mediaSonido(){
   unsigned long startMillis= millis();                                                                                                       
  

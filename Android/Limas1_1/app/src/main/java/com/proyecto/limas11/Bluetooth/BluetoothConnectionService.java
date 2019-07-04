@@ -39,6 +39,8 @@ public class BluetoothConnectionService {
 
     private BluetoothDevice myDevice;
 
+    private StringBuilder constructorCadena;
+
     //UUID del dispositivo con el que voy a comunicarme.
     private UUID deviceUUID;
 
@@ -50,20 +52,22 @@ public class BluetoothConnectionService {
         start();
     }
 
-    public UUID getDeviceUUID(){ return MY_UUID_INSECURE; }
+    public UUID getDeviceUUID() {
+        return MY_UUID_INSECURE;
+    }
 
     public class AcceptThread extends Thread {
         private final BluetoothServerSocket myServerSocket;
 
-        private AcceptThread(){
+        private AcceptThread() {
             BluetoothServerSocket tmp = null;
 
             //Se crea un nuevo socket para escuchar la comunicación
-            try{
+            try {
                 tmp = myBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(appName, MY_UUID_INSECURE);
 
                 Log.d(TAG, "AcceptThread: Estableciendo conexión con el servidor con: " + MY_UUID_INSECURE);
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 Log.e(TAG, "AcceptThread: IOException: " + ex.getMessage());
             }
 
@@ -71,7 +75,7 @@ public class BluetoothConnectionService {
         }
 
         //Ejecución del socket
-        public void run(){
+        public void run() {
             Log.d(TAG, "Run: AcceptThread Ejecutando...");
 
             BluetoothSocket socket = null;
@@ -84,11 +88,11 @@ public class BluetoothConnectionService {
                 socket = myServerSocket.accept();
 
                 Log.d(TAG, "Run: RFCOM conexión del servidor aceptada.");
-            } catch(Exception ex){
+            } catch (Exception ex) {
                 Log.e(TAG, "AcceptThread: IOException: " + ex.getMessage());
             }
 
-            if (socket != null){
+            if (socket != null) {
                 //Realizo la conexión.
                 connected(socket, myDevice);
             }
@@ -97,12 +101,12 @@ public class BluetoothConnectionService {
         }
 
         //Cierre de conexión del socket.
-        public void cancel(){
+        public void cancel() {
             Log.d(TAG, "Cancel: Cancelando AcceptThread.");
-            try{
+            try {
                 //Cierre de la conexión
                 myServerSocket.close();
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 Log.e(TAG, "Cancel: Cierre de AcceptThread, falló ServerSocket. " + ex.getMessage());
             }
         }
@@ -112,17 +116,17 @@ public class BluetoothConnectionService {
     public class ConnectThread extends Thread {
         private BluetoothSocket mySocket;
 
-        private ConnectThread(BluetoothDevice device, UUID uuid){
+        private ConnectThread(BluetoothDevice device, UUID uuid) {
             Log.d(TAG, "ConnectThread: comenzado.");
             myDevice = device;
             deviceUUID = uuid;
             BluetoothSocket tmp = null;
 
             //Se obtiene un BluetoothSocket para la conexión con el dispositivo BluetoothDevice.
-            try{
-                Log.d(TAG, "ConnectThread: Tratando de crear  InsecureRfcommSocket usando UUID: "  + MY_UUID_INSECURE);
+            try {
+                Log.d(TAG, "ConnectThread: Tratando de crear  InsecureRfcommSocket usando UUID: " + MY_UUID_INSECURE);
                 tmp = myDevice.createRfcommSocketToServiceRecord(deviceUUID);
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 Log.e(TAG, "ConnectThread: No se pudo crear un InsecureRfcommSocket " + ex.getMessage());
             }
 
@@ -130,18 +134,18 @@ public class BluetoothConnectionService {
             mySocket = tmp;
         }
 
-        public void run(){
+        public void run() {
             Log.i(TAG, "EJECUTANDO myConnectThread.");
 
             //Siempre se debe cancelar la búsqueda para ahorrar recursos
             myBluetoothAdapter.cancelDiscovery();
 
             //Se establece la conexión con el BluetoothSocket
-            try{
+            try {
                 mySocket.connect();
 
                 Log.d(TAG, "ConnectThread: conectado!.");
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 //Se trata de cerrar la conexión del socket.
                 try {
                     mySocket.close();
@@ -149,39 +153,39 @@ public class BluetoothConnectionService {
                 } catch (Exception e1) {
                     Log.e(TAG, "myConnectThread: Run: No es posible cerrar la conexión de el socket " + e1.getMessage());
                 }
-                Log.d(TAG, "Run: ConnectThread: No es posible conectarse al UUID: " + MY_UUID_INSECURE );
+                Log.d(TAG, "Run: ConnectThread: No es posible conectarse al UUID: " + MY_UUID_INSECURE);
             }
 
             connected(mySocket, myDevice);
         }
 
         //Cierre del thread ConnectThread
-        private void cancel(){
-            try{
+        private void cancel() {
+            try {
                 Log.d(TAG, "Cancel: Cerrndo socket cliente.");
                 mySocket.close();
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 Log.e(TAG, "Cancel: close() de mySocket en ConnectThread falló. " + ex.getMessage());
             }
         }
     }
 
-    private synchronized void start(){
+    private synchronized void start() {
         Log.d(TAG, "start");
 
         //Se cancela cualquier intento de un thread de establecer una conexión
-        if ( myConnectThread != null ){
+        if (myConnectThread != null) {
             myConnectThread.cancel();
             myConnectThread = null;
         }
-        if ( myInsecureAcceptThread == null ){
+        if (myInsecureAcceptThread == null) {
             myInsecureAcceptThread = new AcceptThread();
             myInsecureAcceptThread.start();
         }
     }
 
     //Método para iniciar el cliente, prepara el ambiente para enviar / recibir información.
-    public void startClient(BluetoothDevice device, UUID uuid){
+    public void startClient(BluetoothDevice device, UUID uuid) {
         Log.d(TAG, "StartClient: Iniciado.");
 
 
@@ -204,7 +208,6 @@ public class BluetoothConnectionService {
             OutputStream tmpOut = null;
 
 
-
             //Se le asignan los streams correspondientes del socket, tanto para input como para output.
             try {
                 tmpIn = myLocalSocket.getInputStream();
@@ -219,9 +222,10 @@ public class BluetoothConnectionService {
         }
 
         //Método que ejecuta el pase de información.
-        public void run(){
+        public void run() {
             //Buffer para almacenar el mensaje
             byte[] buffer = new byte[1024];
+            StringBuilder sb = new StringBuilder();
 
             // bytes retornados por el read();
             int bytes;
@@ -234,13 +238,20 @@ public class BluetoothConnectionService {
                     String incomingMessage = new String(buffer, 0, bytes);
                     Log.d(TAG, "InputStream: " + incomingMessage);
 
-                    //Se declara un intent implicito para que al recibir un mensaje del arduino lo comunique a la vista que esté activa en ese momento.
-                    Intent incomingMessageIntent = new Intent("IncomingMessage");
-                    incomingMessageIntent.putExtra("theMessage", incomingMessage);
-                    LocalBroadcastManager.getInstance(myContext).sendBroadcast(incomingMessageIntent);
-
+                    sb.append(incomingMessage);
+                    Log.d(TAG, "StringBuilder: " + sb.toString());
+                    Log.d(TAG, "LastChar: " + incomingMessage.charAt(incomingMessage.length() - 1));
+                    if (incomingMessage.charAt(incomingMessage.length() - 1) == '\n') {
+                        String mensajeCompleto = sb.toString();
+                        Log.d(TAG, "MensajeCompleto: " + mensajeCompleto);
+                        sb = new StringBuilder(); //Reseteo el stringBuilder para poder escuchar el proximo mensaje limpio
+                        //Se declara un intent implicito para que al recibir un mensaje del arduino lo comunique a la vista que esté activa en ese momento.
+                        Intent incomingMessageIntent = new Intent("IncomingMessage");
+                        incomingMessageIntent.putExtra("theMessage", mensajeCompleto);
+                        LocalBroadcastManager.getInstance(myContext).sendBroadcast(incomingMessageIntent);
+                    }
                 } catch (Exception e) {
-                    Log.e(TAG, "READ: Error al recibir el mensaje. " + e.getMessage() );
+                    Log.e(TAG, "READ: Error al recibir el mensaje. " + e.getMessage());
                     //Es importante cortar con el break el ciclo.
                     break;
                 }
@@ -254,7 +265,7 @@ public class BluetoothConnectionService {
             try {
                 myOutStream.write(bytes);
             } catch (Exception e) {
-                Log.e(TAG, "write: Error escribiendo mensaje obtenido " + e.getMessage() );
+                Log.e(TAG, "write: Error escribiendo mensaje obtenido " + e.getMessage());
             }
         }
 
@@ -262,7 +273,9 @@ public class BluetoothConnectionService {
         public void cancel() {
             try {
                 myLocalSocket.close();
-            } catch (Exception e) { e.getStackTrace(); }
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
         }
     }
 
@@ -276,7 +289,7 @@ public class BluetoothConnectionService {
     }
 
     //Método que cierra la conexión.
-    public void cancel(){
+    public void cancel() {
         Log.d(TAG, "cancel: Canceling socket.");
 
         myConnectedThread.cancel();

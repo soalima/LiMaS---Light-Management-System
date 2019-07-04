@@ -5,8 +5,12 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -15,6 +19,8 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -24,12 +30,15 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.proyecto.limas11.Bluetooth.BluetoothConnectionService;
 import com.proyecto.limas11.R;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +64,7 @@ public class ComunicationActivity extends Activity implements SensorEventListene
 
     static Camera cam = null;
     private String permissions = Manifest.permission.CAMERA;
+    private BluetoothConnectionService bluetoothConnection;
 
     Handler bluetoothIn;
     final int handlerState = 0; //used to identify handler message
@@ -71,7 +81,7 @@ public class ComunicationActivity extends Activity implements SensorEventListene
 
     // String for MAC address del Hc05
     private static String address = null;
-
+    private BluetoothDevice device;
     private SensorManager sensorManager;
 
     @Override
@@ -85,7 +95,7 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         txtPotenciometro = (TextView) findViewById(R.id.txtValorPotenciometro);
         switchL1 = (Switch) findViewById(R.id.switchLuz1);
         switchL2 = (Switch) findViewById(R.id.switchLuz2);
-        swLinterna=(Switch)findViewById(R.id.swLinterna);
+        swLinterna = (Switch) findViewById(R.id.swLinterna);
 
         switchL1.setChecked(false);
         switchL2.setChecked(false);
@@ -93,10 +103,9 @@ public class ComunicationActivity extends Activity implements SensorEventListene
 
         //obtengo el adaptador del bluethoot
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-
         //defino el Handler de comunicacion entre el hilo Principal  el secundario.
         //El hilo secundario va a mostrar informacion al layout atraves utilizando indeirectamente a este handler
-        bluetoothIn = Handler_Msg_Hilo_Principal();
+        //bluetoothIn = Handler_Msg_Hilo_Principal();
 
         //defino los handlers para los botones Apagar y encender
         btnEncender.setOnClickListener(btnEncenderListener);
@@ -104,14 +113,10 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         swLinterna.setOnCheckedChangeListener((new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b) {
+                if (b) {
                     prendertorch = true;
-                    //tenia esto pero creo que me equivoque de flag :(
-                    //isflashon = true;
-                }  else
-                {
-                    // off(null);
-                    if(isflashon)
+                } else {
+                    if (isflashon)
                         off(null);
                     prendertorch = false;
 
@@ -128,8 +133,24 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
 
-
     }
+
+    BroadcastReceiver myReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Acá se recibe el mensaje del arduino y se evalua
+            String text = intent.getStringExtra("theMessage");
+
+            Log.d("ComandoRecepcion", text);
+
+            if (text.equals("8")) {
+
+            } else if (text.equals("9")) {
+
+            }
+        }
+    };
+
 
     @Override
     //Cada vez que se detecta el evento OnResume se establece la comunicacion con el HC05, creando un
@@ -143,25 +164,15 @@ public class ComunicationActivity extends Activity implements SensorEventListene
 
         address = extras.getString("Direccion_Bluethoot");
 
-        BluetoothDevice device = btAdapter.getRemoteDevice(address);
+        device = btAdapter.getRemoteDevice(address);
 
-        //se realiza la conexion del Bluethoot crea y se conectandose a atraves de un socket
-        try {
-            btSocket = createBluetoothSocket(device);
-        } catch (IOException e) {
-            showToast("La creacción del Socket fallo");
-        }
-        // Establish the Bluetooth socket connection.
-        try {
-            btSocket.connect();
-        } catch (IOException e) {
-            try {
-                btSocket.close();
-            } catch (IOException e2) {
-                finish();
-            }
-        }
+        bluetoothConnection = new BluetoothConnectionService(getApplicationContext());
+        //Se declara un receiver para obtener los datos que envíe el embebebido.
+        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver, new IntentFilter("IncomingMessage"));
+        //Si tengo un disposito conectado comienzo la conexión.
+        bluetoothConnection.startClient(device, bluetoothConnection.getDeviceUUID());
 
+        /*
         //Una establecida la conexion con el Hc05 se crea el hilo secundario, el cual va a recibir
         // los datos de Arduino atraves del bluethoot
         mConnectedThread = new ConnectedThread(btSocket);
@@ -169,7 +180,7 @@ public class ComunicationActivity extends Activity implements SensorEventListene
 
         //I send a character when resuming.beginning transmission to check device is connected
         //If it is not an exception will be thrown in the write method and finish() will be called
-        mConnectedThread.write("x");
+        mConnectedThread.write("x");*/
     }
 
 
@@ -185,19 +196,6 @@ public class ComunicationActivity extends Activity implements SensorEventListene
             //insert code to deal with this
         }
     }
-
-    /*
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        try
-        {
-            //Don't leave Bluetooth sockets open when leaving activity
-            btSocket.close();
-        } catch (IOException e6) {
-            //insert code to deal with this
-        }
-    }*/
 
     //Metodo que crea el socket bluethoot
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
@@ -234,11 +232,13 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         @Override
         public void onClick(View v) {
             if (switchL1.isChecked()) {
-                mConnectedThread.write("1");
+                //mConnectedThread.write("1");
+                enviarComando('1');
                 showToast("Encender el LED 1");
             }// Send "1" via Bluetooth
             if (switchL2.isChecked()) {
-                mConnectedThread.write("5");
+                //mConnectedThread.write("5");
+                enviarComando('5');
                 showToast("Encender el LED 2");
             }
         }
@@ -249,11 +249,13 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         @Override
         public void onClick(View v) {
             if (switchL1.isChecked()) {
-                mConnectedThread.write("2");
+                //mConnectedThread.write("2");
+                enviarComando('2');
                 showToast("Apagar el LED 1");
             }// Send "1" via Bluetooth
             if (switchL2.isChecked()) {
-                mConnectedThread.write("6");
+                //mConnectedThread.write("6");
+                enviarComando('6');
                 showToast("Apagar el LED 2");
             }
         }
@@ -328,33 +330,34 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         // TODO Auto-generated method stub
         if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
             if (event.values[0] == 3)
-                mConnectedThread.write("3");
+                //mConnectedThread.write("3");
+                enviarComando('3');
         }
 
-        if(event.sensor.getType() == Sensor.TYPE_LIGHT && checkPermissions()){
+        if (event.sensor.getType() == Sensor.TYPE_LIGHT && checkPermissions()) {
               /*  mConnectedThread.write("5\n");
                 mConnectedThread.write(Integer.toString((int) event.values[0]));
                 showToast(Integer.toString((int) event.values[0]));*/
 
             long actualTime = event.timestamp;
 
-                if (actualTime - lastUpdate < 1000) {
-                    return;
-                }
-                lastUpdate = actualTime;
+            if (actualTime - lastUpdate < 1000) {
+                return;
+            }
+            lastUpdate = actualTime;
 
-                float currentLux = event.values[0];
+            float currentLux = event.values[0];
 //                showToast(Float.toString(currentLux));
-                if (currentLux < 70 && prendertorch == true) {
-                    on(null);
-                } else {
-                    off(null);
-                }
+            if (currentLux < 70 && prendertorch == true) {
+                on(null);
+            } else {
+                off(null);
+            }
 
 
         }
 
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER  ) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float[] values = event.values;
 
             float x = values[0];
@@ -369,12 +372,14 @@ public class ComunicationActivity extends Activity implements SensorEventListene
                     return;
                 }
                 lastUpdate = actualTime;
-                if(switchL1.isChecked()){
-                    mConnectedThread.write("4");
-                   // showToast("Cambio estado LED 1");
+                if (switchL1.isChecked()) {
+                    //mConnectedThread.write("4");
+                    enviarComando('4');
+                    // showToast("Cambio estado LED 1");
                 }
-                if(switchL2.isChecked()){
-                    mConnectedThread.write("7");
+                if (switchL2.isChecked()) {
+                    //mConnectedThread.write("7");
+                    enviarComando('7');
                     //showToast("Cambio estado LED 2");
                 }
             }
@@ -386,8 +391,8 @@ public class ComunicationActivity extends Activity implements SensorEventListene
 
     }
 
-    public void off(View v){
-        if(isflashon == true){
+    public void off(View v) {
+        if (isflashon == true) {
             cam = Camera.open();
             Camera.Parameters p = cam.getParameters();
             p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
@@ -396,8 +401,8 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         }
     }
 
-    public void on(View v){
-        if(isflashon == false){
+    public void on(View v) {
+        if (isflashon == false) {
             cam = Camera.open();
             Camera.Parameters p = cam.getParameters();
             p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
@@ -406,7 +411,7 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         }
     }
 
-    private  boolean checkPermissions() {
+    private boolean checkPermissions() {
         int result;
         List<String> listPermissionsNeeded = new ArrayList<>();
 
@@ -416,16 +421,30 @@ public class ComunicationActivity extends Activity implements SensorEventListene
         }
 
 
-            result = ContextCompat.checkSelfPermission(ComunicationActivity.this,permissions);
-            if (result != PackageManager.PERMISSION_GRANTED) {
-                listPermissionsNeeded.add(permissions);
-            }
+        result = ContextCompat.checkSelfPermission(ComunicationActivity.this, permissions);
+        if (result != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(permissions);
+        }
 
         if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(ComunicationActivity.this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),MULTIPLE_PERMISSIONS );
+            ActivityCompat.requestPermissions(ComunicationActivity.this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), MULTIPLE_PERMISSIONS);
             return false;
         }
         return true;
+    }
+
+    //Método para envíar información al arduino.
+    public void enviarComando(char comando){
+        if (device == null){
+            //Si no estoy conectado al bluetooth o se pierde la señal
+            // Pido reconectarse
+            showToast("No estás conectado a ningún dispositivo. Conectate vía bluetooth.");
+        } else {
+            showToast("Caracter a enviar: " + comando);
+            byte[] commandInBytes = String.valueOf(comando).getBytes(Charset.defaultCharset());
+
+            bluetoothConnection.write(commandInBytes);
+        }
     }
 
     @Override

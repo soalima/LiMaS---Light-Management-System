@@ -1,4 +1,4 @@
-package com.proyecto.limas11;
+package com.proyecto.limas11.activities;
 
 
 import java.lang.reflect.Method;
@@ -15,6 +15,10 @@ import android.content.IntentFilter;
 
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.proyecto.limas11.AlmacenGlobal;
+import com.proyecto.limas11.adapters.DeviceListAdapter;
+import com.proyecto.limas11.R;
 
 /*********************************************************************************************************
  * Activity que muestra el listado de los dispositivos bluethoot encontrados
@@ -144,7 +148,7 @@ public class DeviceListActivity extends Activity
                     ((AlmacenGlobal) getApplication()).setDirBluetooth(direccionBluethoot);
 
 
-                    Intent i = new Intent(DeviceListActivity.this, activity_comunicacion.class);
+                    Intent i = new Intent(DeviceListActivity.this, ComunicationActivity.class);
                     i.putExtra("Direccion_Bluethoot", direccionBluethoot);
 
                     startActivity(i);

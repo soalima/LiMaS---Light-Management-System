@@ -1,4 +1,4 @@
-package com.proyecto.limas11;
+package com.proyecto.limas11.adapters;
 
 import java.util.List;
 

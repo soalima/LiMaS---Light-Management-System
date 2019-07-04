@@ -24,7 +24,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity android:name=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,7 +34,7 @@
         </activity>
 
         <activity
-            android:name=".DeviceListActivity"
+            android:name=".activities.DeviceListActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -42,7 +42,7 @@
         </activity>
 
         <!--- Defino la activity que se comunica, transfierendo datos de los sensores, con Arduino -->
-        <activity android:name=".activity_comunicacion"></activity>
+        <activity android:name=".activities.ComunicationActivity"></activity>
     </application>
 
 </manifest>

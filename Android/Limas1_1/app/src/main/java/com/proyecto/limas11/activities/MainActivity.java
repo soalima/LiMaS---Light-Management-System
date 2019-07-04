@@ -1,4 +1,4 @@
-package com.proyecto.limas11;
+package com.proyecto.limas11.activities;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -12,6 +12,12 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.proyecto.limas11.R;
+import com.proyecto.limas11.fragments.BluetoothFragment;
+import com.proyecto.limas11.fragments.ConfiguracionFragment;
+import com.proyecto.limas11.fragments.EstadisticasFragment;
+import com.proyecto.limas11.fragments.LuzFragment;
+import com.proyecto.limas11.fragments.MessageFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;

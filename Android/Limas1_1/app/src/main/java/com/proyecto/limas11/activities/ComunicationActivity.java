@@ -1,12 +1,10 @@
-package com.proyecto.limas11;
+package com.proyecto.limas11.activities;
 
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -23,10 +21,11 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.proyecto.limas11.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,14 +34,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.proyecto.limas11.BluetoothFragment.MULTIPLE_PERMISSIONS;
+import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSIONS;
 
 /*********************************************************************************************************
  * Activity que muestra realiza la comunicacion con Arduino
  **********************************************************************************************************/
 
 //******************************************** Hilo principal del Activity**************************************
-public class activity_comunicacion extends Activity implements SensorEventListener {
+public class ComunicationActivity extends Activity implements SensorEventListener {
     Button btnApagar;
     Button btnEncender;
     TextView txtPotenciometro;
@@ -417,13 +416,13 @@ public class activity_comunicacion extends Activity implements SensorEventListen
         }
 
 
-            result = ContextCompat.checkSelfPermission(activity_comunicacion.this,permissions);
+            result = ContextCompat.checkSelfPermission(ComunicationActivity.this,permissions);
             if (result != PackageManager.PERMISSION_GRANTED) {
                 listPermissionsNeeded.add(permissions);
             }
 
         if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(activity_comunicacion.this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),MULTIPLE_PERMISSIONS );
+            ActivityCompat.requestPermissions(ComunicationActivity.this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),MULTIPLE_PERMISSIONS );
             return false;
         }
         return true;
@@ -442,7 +441,7 @@ public class activity_comunicacion extends Activity implements SensorEventListen
                         perStr += "\n" + per;
                     }
                     // permissions list of don't granted permission
-                    Toast.makeText(activity_comunicacion.this, "ATENCION: La aplicacion no funcionara " + "correctamente debido a la falta de Permisos", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ComunicationActivity.this, "ATENCION: La aplicacion no funcionara " + "correctamente debido a la falta de Permisos", Toast.LENGTH_LONG).show();
                 }
                 return;
             }

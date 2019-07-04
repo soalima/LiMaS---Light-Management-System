@@ -1,7 +1,6 @@
-package com.proyecto.limas11;
+package com.proyecto.limas11.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,6 +25,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import com.proyecto.limas11.activities.DeviceListActivity;
+import com.proyecto.limas11.R;
 
 import java.util.ArrayList;
 import java.util.List;

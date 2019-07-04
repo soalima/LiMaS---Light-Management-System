@@ -1,4 +1,4 @@
-package com.proyecto.limas11;
+package com.proyecto.limas11.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,11 +9,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class EstadisticasFragment extends Fragment {
+import com.proyecto.limas11.R;
+
+public class MessageFragment extends Fragment {
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_estadisticas, container, false);
+        return inflater.inflate(R.layout.fragment_message, container, false);
     }
 }

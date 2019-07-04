@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -44,8 +45,9 @@ import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSI
 
 //******************************************** Hilo principal del Activity*********************************
 public class ComunicationActivity extends Activity {
-    Button btnApagar, btnEncender, btnEstadisticaL1, btnEstadisticaL2;
+    Button btnApagar, btnEncender;//btnEstadisticaL1, btnEstadisticaL2;
     Switch switchL1, switchL2, swLinterna;
+    TextView txtLed1,txtLed2;
     boolean prendertorch, isflashon;
     static Camera cam = null;
     private String permissions = Manifest.permission.CAMERA;
@@ -67,8 +69,12 @@ public class ComunicationActivity extends Activity {
         btnApagar = (Button) findViewById(R.id.btnApagar);
         btnEncender = (Button) findViewById(R.id.btnEncender);
 
-        btnEstadisticaL1 = (Button) findViewById(R.id.btnMNDR8);
-        btnEstadisticaL2 = (Button) findViewById(R.id.btnMNDR9);
+        txtLed1 = (TextView) findViewById(R.id.txtTimeLed1);
+        txtLed2 = (TextView) findViewById(R.id.txtTimeLed2);
+
+
+       /* btnEstadisticaL1 = (Button) findViewById(R.id.btnMNDR8);
+        btnEstadisticaL2 = (Button) findViewById(R.id.btnMNDR9);*/
 
         switchL1 = (Switch) findViewById(R.id.switchLuz1);
         switchL2 = (Switch) findViewById(R.id.switchLuz2);
@@ -84,8 +90,8 @@ public class ComunicationActivity extends Activity {
         //defino los handlers para los botones Apagar y encender
         btnEncender.setOnClickListener(btnEncenderListener);
         btnApagar.setOnClickListener(btnApagarListener);
-        btnEstadisticaL1.setOnClickListener(btnEstadisticaL1Listener);
-        btnEstadisticaL2.setOnClickListener(btnEstadisticaL2Listener);
+       /* btnEstadisticaL1.setOnClickListener(btnEstadisticaL1Listener);
+        btnEstadisticaL2.setOnClickListener(btnEstadisticaL2Listener);*/
 
         swLinterna.setOnCheckedChangeListener((new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -115,6 +121,17 @@ public class ComunicationActivity extends Activity {
 
             Log.d("ComandoRecepcion", text);
 
+            String[] division = text.split(":");
+            if (division[0] == "L1") {
+                //paso el valor a segundos
+                Long numero1 = Long.parseLong(division[1]);
+                double L1 = (double) numero1 / 1000;
+                txtLed1.setText(Double.toString(L1));
+            } else if (division[0] == "L2") {
+                Long numero2 = Long.parseLong(division[1]);
+                double L2 = (double) numero2 / 1000;
+                txtLed2.setText(Double.toString(L2));
+            }
             showToast(text);
         }
     };
@@ -180,7 +197,13 @@ public class ComunicationActivity extends Activity {
             }
         }
     };
+    private View.OnClickListener btnEstadisticaListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
 
+        }
+    };
+/*
     private View.OnClickListener btnEstadisticaL1Listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -195,175 +218,175 @@ public class ComunicationActivity extends Activity {
             enviarComando('9');
             //showToast("Presionado boton estadistica luz 2");
         }
-    };
+    };*/
 
-    private void showToast(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    SensorEventListener lightSensorEventListener = new SensorEventListener() {
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // TODO Auto-generated method stub
+        private void showToast(String message) {
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
 
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            if (event.sensor.getType() == Sensor.TYPE_LIGHT && checkPermissions()) {
-                long actualTime = event.timestamp;
-                if (actualTime - lastUpdate < 1000) {
-                    return;
-                }
-                lastUpdate = actualTime;
-
-                float currentLux = event.values[0];
-                if (currentLux < 70 && prendertorch == true) {
-                    on(null);
-                } else {
-                    off(null);
-                }
+        SensorEventListener lightSensorEventListener = new SensorEventListener() {
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                // TODO Auto-generated method stub
             }
-        }
-    };
 
-    SensorEventListener accelerometerSensorEventListener = new SensorEventListener() {
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // TODO Auto-generated method stub
-        }
-
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                float[] values = event.values;
-
-                float x = values[0];
-                float y = values[1];
-
-                float accelationSquareRoot = (x * x + y * y)
-                        / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-                long actualTime = event.timestamp;
-                if (accelationSquareRoot >= 4) //
-                {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_LIGHT && checkPermissions()) {
+                    long actualTime = event.timestamp;
                     if (actualTime - lastUpdate < 1000) {
                         return;
                     }
                     lastUpdate = actualTime;
-                    if (switchL1.isChecked()) {
-                        enviarComando('4');
-                    }
-                    if (switchL2.isChecked()) {
-                        enviarComando('7');
+
+                    float currentLux = event.values[0];
+                    if (currentLux < 70 && prendertorch == true) {
+                        on(null);
+                    } else {
+                        off(null);
                     }
                 }
             }
-        }
-    };
+        };
 
-    SensorEventListener proximitySensorEventListener = new SensorEventListener() {
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // TODO Auto-generated method stub
-        }
+        SensorEventListener accelerometerSensorEventListener = new SensorEventListener() {
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                // TODO Auto-generated method stub
+            }
 
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-                if (event.values[0] == 3)
-                    enviarComando('3');
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                    float[] values = event.values;
+
+                    float x = values[0];
+                    float y = values[1];
+
+                    float accelationSquareRoot = (x * x + y * y)
+                            / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+                    long actualTime = event.timestamp;
+                    if (accelationSquareRoot >= 4) //
+                    {
+                        if (actualTime - lastUpdate < 1000) {
+                            return;
+                        }
+                        lastUpdate = actualTime;
+                        if (switchL1.isChecked()) {
+                            enviarComando('4');
+                        }
+                        if (switchL2.isChecked()) {
+                            enviarComando('7');
+                        }
+                    }
+                }
+            }
+        };
+
+        SensorEventListener proximitySensorEventListener = new SensorEventListener() {
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+                    if (event.values[0] == 3)
+                        enviarComando('3');
+                }
+            }
+        };
+
+        public void off(View v) {
+            if (isflashon == true) {
+                cam = Camera.open();
+                Camera.Parameters p = cam.getParameters();
+                p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                cam.setParameters(p);
+                isflashon = false;
             }
         }
-    };
 
-    public void off(View v) {
-        if (isflashon == true) {
-            cam = Camera.open();
-            Camera.Parameters p = cam.getParameters();
-            p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            cam.setParameters(p);
-            isflashon = false;
+        public void on(View v) {
+            if (isflashon == false) {
+                cam = Camera.open();
+                Camera.Parameters p = cam.getParameters();
+                p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                cam.setParameters(p);
+                isflashon = true;
+            }
         }
-    }
 
-    public void on(View v) {
-        if (isflashon == false) {
-            cam = Camera.open();
-            Camera.Parameters p = cam.getParameters();
-            p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-            cam.setParameters(p);
-            isflashon = true;
-        }
-    }
+        private boolean checkPermissions() {
+            int result;
+            List<String> listPermissionsNeeded = new ArrayList<>();
 
-    private boolean checkPermissions() {
-        int result;
-        List<String> listPermissionsNeeded = new ArrayList<>();
+            //Se chequea si la version de Android es menor a la 6
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                return true;
+            }
 
-        //Se chequea si la version de Android es menor a la 6
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+
+            result = ContextCompat.checkSelfPermission(ComunicationActivity.this, permissions);
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded.add(permissions);
+            }
+
+            if (!listPermissionsNeeded.isEmpty()) {
+                ActivityCompat.requestPermissions(ComunicationActivity.this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), MULTIPLE_PERMISSIONS);
+                return false;
+            }
             return true;
         }
 
+        //Método para envíar información al arduino.
+        public void enviarComando(char comando) {
+            if (device == null) {
+                //Si no estoy conectado al bluetooth o se pierde la señal
+                // Pido reconectarse
+                //showToast("No estás conectado a ningún dispositivo. Conectate vía bluetooth.");
+            } else {
+                //showToast("Caracter a enviar: " + comando);
+                byte[] commandInBytes = String.valueOf(comando).getBytes(Charset.defaultCharset());
 
-        result = ContextCompat.checkSelfPermission(ComunicationActivity.this, permissions);
-        if (result != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(permissions);
+                bluetoothConnection.write(commandInBytes);
+            }
         }
 
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(ComunicationActivity.this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), MULTIPLE_PERMISSIONS);
-            return false;
+        @Override
+        public void onBackPressed() {
+            try {
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(this.myReceiver);
+            } catch (Exception ex) {
+            }
+            if (device != null) {
+                Log.e("[onBACKPRESSED:Limas]", "CANCELANDO THREAD");
+                bluetoothConnection.cancel();
+            }
+            sensorManager.unregisterListener(lightSensorEventListener);
+            sensorManager.unregisterListener(proximitySensorEventListener);
+            sensorManager.unregisterListener(accelerometerSensorEventListener);
+            finish();
         }
-        return true;
-    }
 
-    //Método para envíar información al arduino.
-    public void enviarComando(char comando) {
-        if (device == null) {
-            //Si no estoy conectado al bluetooth o se pierde la señal
-            // Pido reconectarse
-            //showToast("No estás conectado a ningún dispositivo. Conectate vía bluetooth.");
-        } else {
-            //showToast("Caracter a enviar: " + comando);
-            byte[] commandInBytes = String.valueOf(comando).getBytes(Charset.defaultCharset());
-
-            bluetoothConnection.write(commandInBytes);
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(this.myReceiver);
-        } catch (Exception ex) {
-        }
-        if (device != null) {
-            Log.e("[onBACKPRESSED:Limas]", "CANCELANDO THREAD");
-            bluetoothConnection.cancel();
-        }
-        sensorManager.unregisterListener(lightSensorEventListener);
-        sensorManager.unregisterListener(proximitySensorEventListener);
-        sensorManager.unregisterListener(accelerometerSensorEventListener);
-        finish();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MULTIPLE_PERMISSIONS: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permissions granted.
-                    //enableComponent(); // Now you call here what ever you want :)
-                } else {
-                    String perStr = "";
-                    for (String per : permissions) {
-                        perStr += "\n" + per;
+        @Override
+        public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+            switch (requestCode) {
+                case MULTIPLE_PERMISSIONS: {
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        // permissions granted.
+                        //enableComponent(); // Now you call here what ever you want :)
+                    } else {
+                        String perStr = "";
+                        for (String per : permissions) {
+                            perStr += "\n" + per;
+                        }
+                        // permissions list of don't granted permission
+                        Toast.makeText(ComunicationActivity.this, "ATENCION: La aplicacion no funcionara " + "correctamente debido a la falta de Permisos", Toast.LENGTH_LONG).show();
                     }
-                    // permissions list of don't granted permission
-                    Toast.makeText(ComunicationActivity.this, "ATENCION: La aplicacion no funcionara " + "correctamente debido a la falta de Permisos", Toast.LENGTH_LONG).show();
+                    return;
                 }
-                return;
             }
         }
     }
-}

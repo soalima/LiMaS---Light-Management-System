@@ -17,13 +17,11 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -34,12 +32,9 @@ import com.proyecto.limas11.Bluetooth.BluetoothConnectionService;
 import com.proyecto.limas11.R;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSIONS;
 
@@ -49,14 +44,10 @@ import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSI
 
 //******************************************** Hilo principal del Activity*********************************
 public class ComunicationActivity extends Activity {
-    Button btnApagar;
-    Button btnEncender;
-    TextView txtPotenciometro;
-    Switch switchL1;
-    Switch switchL2;
-    Switch swLinterna;
-    boolean prendertorch;
-    boolean isflashon;
+    Button btnApagar, btnEncender;
+    //TextView txtPotenciometro;
+    Switch switchL1, switchL2, swLinterna;
+    boolean prendertorch, isflashon;
     static Camera cam = null;
     private String permissions = Manifest.permission.CAMERA;
 
@@ -71,12 +62,12 @@ public class ComunicationActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_comunicacion);
+        setContentView(R.layout.activity_comunication);
 
         //Se definen los componentes del layout
         btnApagar = (Button) findViewById(R.id.btnApagar);
         btnEncender = (Button) findViewById(R.id.btnEncender);
-        txtPotenciometro = (TextView) findViewById(R.id.txtValorPotenciometro);
+        //txtPotenciometro = (TextView) findViewById(R.id.txtValorPotenciometro);
         switchL1 = (Switch) findViewById(R.id.switchLuz1);
         switchL2 = (Switch) findViewById(R.id.switchLuz2);
         swLinterna = (Switch) findViewById(R.id.swLinterna);

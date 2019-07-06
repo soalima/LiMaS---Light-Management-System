@@ -18,6 +18,7 @@ unsigned long ledMillis1;
 unsigned long ledMillis2;     
 int intensidad_luz;
 int contador = 0;
+int VALOR_ALTO=250;
 char c = ' ';
 char read_string[10];
 int regulando=0;
@@ -186,15 +187,16 @@ int Verificar_Serial()
         millisAlarma = millis()+PERIODO_ALARMA;
         while(millis()< millisAlarma){
         tone(BUZZERPin, TONO); //activa un tono de frecuencia determinada en un pin dado        
-        analogWrite(LEDPin1,HIGH);    
-        analogWrite(LEDPin2,LOW);                           
+        analogWrite(LEDPin1,255);    
+        analogWrite(LEDPin2,LOW);
+                                  
         }
         //delay(250);        
 
         millisAlarma = millis()+PERIODO_ALARMA;
         while(millis()< millisAlarma){
         noTone(BUZZERPin); 
-        analogWrite(LEDPin2,HIGH);
+        analogWrite(LEDPin2,255);
         analogWrite(LEDPin1,LOW);   
         }
         //delay(250); 
@@ -304,7 +306,7 @@ int Verificar_Bluetooth()
         millisAlarma = millis()+PERIODO_ALARMA;
         while(millis()< millisAlarma){
         tone(BUZZERPin, TONO); //activa un tono de frecuencia determinada en un pin dado        
-        analogWrite(LEDPin1,HIGH);    
+        analogWrite(LEDPin1,VALOR_ALTO);    
         analogWrite(LEDPin2,LOW);                           
         }//delay(250);        
 
@@ -312,7 +314,7 @@ int Verificar_Bluetooth()
         millisAlarma = millis()+PERIODO_ALARMA;
         while(millis()< millisAlarma){
         noTone(BUZZERPin); 
-        analogWrite(LEDPin2,HIGH);
+        analogWrite(LEDPin2,VALOR_ALTO);
         analogWrite(LEDPin1,LOW);   
         }//delay(250); 
         if(Serial3.available()){

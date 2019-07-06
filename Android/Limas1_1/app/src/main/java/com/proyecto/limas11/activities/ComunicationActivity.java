@@ -102,10 +102,11 @@ public class ComunicationActivity extends Activity {
         }));
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-
+        /*
         sensorManager.registerListener(accelerometerSensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(proximitySensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(lightSensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
+        */
     }
 
     BroadcastReceiver myReceiver = new BroadcastReceiver() {
@@ -136,6 +137,10 @@ public class ComunicationActivity extends Activity {
         LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver, new IntentFilter("IncomingMessage"));
         //Si tengo un disposito conectado comienzo la conexión.
         bluetoothConnection.startClient(device, bluetoothConnection.getDeviceUUID());
+
+        sensorManager.registerListener(accelerometerSensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(proximitySensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(lightSensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
 
@@ -151,6 +156,18 @@ public class ComunicationActivity extends Activity {
             //insert code to deal with this
         }
         */
+        if (device != null) {
+            Log.e("[onBACKPRESSED:Limas]", "CANCELANDO THREAD");
+            try {
+                bluetoothConnection.cancel();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "No hay nada que cerrar");
+            }
+        }
+        sensorManager.unregisterListener(lightSensorEventListener);
+        sensorManager.unregisterListener(proximitySensorEventListener);
+        sensorManager.unregisterListener(accelerometerSensorEventListener);
     }
 
     //Listener del boton encender que envia  msj para enceder Led a Arduino atraves del Bluethoot

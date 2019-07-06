@@ -28,7 +28,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.proyecto.limas11.Bluetooth.BluetoothConnectionService;
+import com.proyecto.limas11.bluetooth.BluetoothConnectionService;
 import com.proyecto.limas11.R;
 
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.proyecto.limas11.Bluetooth;
+package com.proyecto.limas11.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;

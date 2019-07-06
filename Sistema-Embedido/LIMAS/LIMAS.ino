@@ -4,7 +4,6 @@ unsigned int signalMin;
 const int BUZZERPin = 44; //pin del buzzer
 int LEDPin1 = 12; //pin del led
 int LEDPin2 = 13; //pin del led
-
 int i;//Variable auxiliar para condicionales
 int MICPin = A8;
 byte PIRPin = 34; // Input for HC-S501
@@ -22,6 +21,9 @@ int contador = 0;
 char c = ' ';
 char read_string[10];
 int regulando=0;
+unsigned long millisAlarma;
+unsigned long millisPrender;
+unsigned long millisApagar;
 unsigned long inicio1; //se prendio el led
 unsigned long fin1;    //se apago el led
 unsigned long Tiempo_Parcial1; //lo que duro prendido una vez
@@ -30,6 +32,25 @@ unsigned long inicio2; //se prendio el led
 unsigned long fin2;    //se apago el led
 unsigned long Tiempo_Parcial2; //lo que duro prendido una vez
 unsigned long Tiempo_Total2 = 0; //lo que lleva prendido desde que inicio1 arduino
+
+
+#define TRUE  1
+#define FALSE  0
+#define TONO 500
+#define SALIR '0'
+#define ENCENDER1 '1'
+#define APAGAR1 '2'
+#define ALARMA '3'
+#define SHAKE1 '4'
+#define ENCENDER2 '5'
+#define APAGAR2 '6'
+#define SHAKE2 '7'
+#define SIGNAL_MIN 1024
+#define MAX_AMB 960
+#define MAX_LED 160
+#define MIN_LED 0
+#define PERIODO_ALARMA 250
+#define PERIODO_LED 150
 
 
 
@@ -53,31 +74,36 @@ void loop()
    unsigned long stopMillis= millis()+1000;   
    int lectura_Infrarrojo;       
    int Tiempo_Alarna = 20000; //Si el celu no esta conectado la alarma durara este tiempo, luego puede configurarse por bt.
+   
 
    while (millis() < stopMillis)
    {                 
     
     // Actualizar la intenzidad de la luz
-    if(encenderLed1==1)
+    if(encenderLed1==TRUE)
     {
-      regulando = 1;
+      regulando = TRUE;
       Encender_Led1();
       
-      regulando = 0;         
+      regulando = FALSE;         
     }
-  if(encenderLed2==1)
-    Encender_Led2();
+  if(encenderLed2==TRUE)
+    {
+      regulando = TRUE;
+      Encender_Led2();
+      regulando = FALSE;
+    }
     // Verificamos el estado del sensor de sonido para encender/apagar led
     if( Verificar_Sensor_Sonido(umbral,encenderLed1) == 1 )
     {
     
-      encenderLed1 = 1;
+      encenderLed1 = TRUE;
       flagMic = 1;
     }//El flag del mic es para evitar que el sensor de movimiento me apague el led si lo prendemos por aplauso
     else
     {
       
-      encenderLed1 = 0;
+      encenderLed1 = FALSE;
       flagMic=0;
     }
     
@@ -86,26 +112,26 @@ void loop()
     if( Verificar_Bluetooth()==1)//Verificar_Bluetooth() == 1 ) //Verificar_Bluetooth() == 1 )Verificar_Serial() == 1)
     {
     
-      encenderLed1 = 1;
+      encenderLed1 = TRUE;
       flagMic = 1; //El flag del mic es para evitar que el sensor de movimiento me apague el led si lo prendemos por bluetooth
     
     }
     else
     {
       
-      encenderLed1 = 0;
-      flagMic = 0;
+      encenderLed1 = FALSE;
+      flagMic = FALSE;
             
     }    
 
-    if( Verificar_Sensor_Infrarrojo(encenderLed1) == 1 )
+    if( Verificar_Sensor_Infrarrojo(encenderLed1) == TRUE )
     {
-      encenderLed1 = 1;
+      encenderLed1 = TRUE;
            
     }
     else
     {
-      encenderLed1 = 0;   
+      encenderLed1 = FALSE;   
     }    
   }
 }
@@ -114,18 +140,18 @@ int Verificar_Sensor_Infrarrojo(int ultimo_estado)
 {
 
   // Activación del la luz por sensor de Bluetooth 
-  if( digitalRead(PIRPin) == 1 && flagMic==0)
+  if( digitalRead(PIRPin) == TRUE && flagMic==FALSE)
   {                   
       Encender_Led1();                     
-      encenderLed1 = 1;
-      return 1;     
+      encenderLed1 = TRUE;
+      return TRUE;     
   }
   else if( flagMic==0) 
   {      
       //Serial.println(digitalRead(PIRPin)); 
      Apagar_Led1();         
-     encenderLed1 = 0;
-     return 0;    
+     encenderLed1 = FALSE;
+     return FALSE;    
   }
   return encenderLed1;
   
@@ -140,91 +166,98 @@ int Verificar_Serial()
   {
      
     c = Serial.read();     
-    if( c == '1')
+    if( c == ENCENDER1)
     {              
       Encender_Led1();
-      encenderLed1 = 1;
-      return 1;    
+      encenderLed1 = TRUE;
+      return TRUE;    
     }
-    if( c == '2')
+    if( c == APAGAR1)
     {      
        Apagar_Led1(); 
-       encenderLed1 = 0;
-       return 0;             
+       encenderLed1 = FALSE;
+       return FALSE;             
     }
-    if( c == '3')
+    if( c == ALARMA)
     {
       
-      while (c == '3')
+      while (c == ALARMA)
       {
-        tone(BUZZERPin, 500); //activa un tono de frecuencia determinada en un pin dado        
-        analogWrite(LEDPin1,250);    
+        millisAlarma = millis()+PERIODO_ALARMA;
+        while(millis()< millisAlarma){
+        tone(BUZZERPin, TONO); //activa un tono de frecuencia determinada en un pin dado        
+        analogWrite(LEDPin1,HIGH);    
         analogWrite(LEDPin2,LOW);                           
-        delay(250);        
+        }
+        //delay(250);        
 
+        millisAlarma = millis()+PERIODO_ALARMA;
+        while(millis()< millisAlarma){
         noTone(BUZZERPin); 
-        analogWrite(LEDPin2,250);
+        analogWrite(LEDPin2,HIGH);
         analogWrite(LEDPin1,LOW);   
-        delay(250); 
+        }
+        //delay(250); 
         if(Serial.available()){
           aux = Serial.read();             
-          if( aux == '3' )
-            c = '0';
+          if( aux == ALARMA )
+            c = SALIR;
         }             
       }
       analogWrite(LEDPin2,LOW); 
-      encenderLed2 = 0;  
-      encenderLed1 = 0;      
+      encenderLed2 = FALSE;  
+      encenderLed1 = FALSE;      
       Apagar_Led1();
       
     }
-    if( c == '4')
+    if( c == SHAKE1)
     {
       //contador++;
-      if( encenderLed1 == 0 )
+      if( encenderLed1 == FALSE )
       {
         Encender_Led1(); 
         Serial.println("encender por agitacion");             
-        encenderLed1 = 1;
+        encenderLed1 = TRUE;
       }
-      else if ( encenderLed1 == 1 )
+      else if ( encenderLed1 == TRUE )
       {
         Apagar_Led1();        
         Serial.println("apagar por agitacion");
-        encenderLed1 = 0;
+        encenderLed1 = FALSE;
       }
     }
-    if( c == '5')
+    if( c == ENCENDER2)
     {              
       Encender_Led2();
-      encenderLed2 = 1;
+      encenderLed2 = TRUE;
 
       return 0;    
     }
-    if( c == '6')
+    if( c == APAGAR2)
     {      
        Apagar_Led2(); 
-       encenderLed2 = 0;
-       return 0;             
+       encenderLed2 = FALSE;
+       return FALSE;             
     }
-    if( c == '7')
+    if( c == SHAKE2)
     {
      // Serial.println("entre");
       Serial.println(contador);
       //contador++;
-      if( encenderLed2 == 0 )
+      if( encenderLed2 == FALSE )
       {
         Encender_Led2(); 
         Serial.println("encender por agitacion");             
-        encenderLed2 = 1;
+        encenderLed2 = TRUE;
       }
-      else if ( encenderLed2 == 1 )
+      else if ( encenderLed2 == TRUE )
       {
         Apagar_Led2();      
         Serial.println("apagar por agitacion");
         //encenderLed2 = 0;
       }
     }
+    /*
     if( c == '8')
     {
       
@@ -234,6 +267,7 @@ int Verificar_Serial()
     {
       Serial.println(Tiempo_Total2);
     }
+    */
         
   }
   return encenderLed1;  
@@ -247,94 +281,100 @@ int Verificar_Bluetooth()
   {     
     c = Serial3.read();        
     Serial.println(c);
-    if( c == '1')
+    if( c == ENCENDER1)
     { 
              
       Encender_Led1();
-      encenderLed1 = 1;
-      return 1;
+      encenderLed1 = TRUE;
+      return TRUE;
     
     }
-    if( c == '2')
+    if( c == APAGAR1)
     {
       
        Apagar_Led1();       
-       encenderLed1 = 0;
-       return 0;             
+       encenderLed1 = FALSE;
+       return FALSE;             
     }
-    if( c == '3')
+    if( c == ALARMA)
     {
       
-      while (c == '3')
+      while (c == ALARMA)
       {
-        tone(BUZZERPin, 500); //activa un tono de frecuencia determinada en un pin dado        
-        analogWrite(LEDPin1,250);    
+        millisAlarma = millis()+PERIODO_ALARMA;
+        while(millis()< millisAlarma){
+        tone(BUZZERPin, TONO); //activa un tono de frecuencia determinada en un pin dado        
+        analogWrite(LEDPin1,HIGH);    
         analogWrite(LEDPin2,LOW);                           
-        delay(250);        
+        }//delay(250);        
 
+
+        millisAlarma = millis()+PERIODO_ALARMA;
+        while(millis()< millisAlarma){
         noTone(BUZZERPin); 
-        analogWrite(LEDPin2,250);
+        analogWrite(LEDPin2,HIGH);
         analogWrite(LEDPin1,LOW);   
-        delay(250); 
+        }//delay(250); 
         if(Serial3.available()){
           aux = Serial3.read();             
-          if( aux == '3' )
-            c = '0';
+          if( aux == ALARMA )
+            c = SALIR;
         }             
       }
       analogWrite(LEDPin2,LOW); 
-      encenderLed2 = 0;  
-      encenderLed1 = 0;      
+      encenderLed2 = FALSE;  
+      encenderLed1 = FALSE;      
       Apagar_Led1();
       
     }
-    if( c == '4')
+    if( c == SHAKE1)
     {
       //contador++;
-      if( encenderLed1 == 0 )
+      if( encenderLed1 == FALSE )
       {
         Encender_Led1(); 
         Serial.println("encender por agitacion");             
-        encenderLed1 = 1;
+        encenderLed1 = TRUE;
       }
-      else if ( encenderLed1 == 1 )
+      else if ( encenderLed1 == TRUE )
       {
         Apagar_Led1();        
         Serial.println("apagar por agitacion");
-        encenderLed1 = 0;
+        encenderLed1 = FALSE;
       }
     }
-    if( c == '5')
+    if( c == ENCENDER2)
     {              
       Encender_Led2();
-      encenderLed2 = 1;
+      encenderLed2 = TRUE;
 
-      return 0;    
+      return FALSE;    
     }
-    if( c == '6')
+    if( c == APAGAR2)
     {      
        Apagar_Led2(); 
-       encenderLed2 = 0;
-       return 0;             
+       encenderLed2 = FALSE;
+       return FALSE;             
     }
-    if( c == '7')
+    if( c == SHAKE2)
     {
      // Serial.println("entre");
       Serial.println(contador);
       //contador++;
-      if( encenderLed2 == 0 )
+      if( encenderLed2 == FALSE )
       {
         Encender_Led2(); 
         Serial.println("encender por agitacion");             
-        encenderLed2 = 1;
+        encenderLed2 = TRUE;
       }
-      else if ( encenderLed2 == 1 )
+      else if ( encenderLed2 == TRUE )
       {
         Apagar_Led2();      
         Serial.println("apagar por agitacion");
-        //encenderLed2 = 0;
+        //encenderLed2 = FALSE;
       }
     }
+    /*
     if( c == '8')
     {
       
@@ -352,6 +392,7 @@ int Verificar_Bluetooth()
        resultado = resultado + Tiempo_Total2;
       Serial3.println(resultado);
     }
+    */
         
   }
   return encenderLed1;  
@@ -366,20 +407,22 @@ int Verificar_Sensor_Sonido( int media , int ultimo_estado)
   sample = analogRead(MICPin);  
   if(sample > media)
   {
-    if(ultimo_estado==0)
+    if(ultimo_estado==FALSE)
     {
-    
-      Encender_Led1();
-      delay(150);
-      return 1;
+      millisPrender = millis()+PERIODO_LED;
+      while(millis()< millisPrender)
+          Encender_Led1();
+     // delay(150);
+      return TRUE;
       
     }
     else
     {
-      
-      Apagar_Led1();     
-      delay(150);
-      return 0;      
+      millisApagar = millis()+PERIODO_LED;
+      while(millis()< millisApagar)
+          Apagar_Led1();     
+      //delay(150);
+      return FALSE;      
 
     }      
   }
@@ -388,56 +431,61 @@ int Verificar_Sensor_Sonido( int media , int ultimo_estado)
     
 }
 
-int Encender_Led1()
+void Encender_Led1()
 {
   analogWrite(LEDPin1,regularIntensidadLuminica(analogRead(LDRPin)));
-  if(regulando == 0)
+  if(regulando == FALSE)
   {
       inicio1 = millis();         
   }
 }
 
-int Apagar_Led1()
+void Apagar_Led1()
 {
-  if(encenderLed1==0)
+  if(encenderLed1==FALSE)
     return;
   analogWrite(LEDPin1,LOW);
   fin1 = millis();
   Tiempo_Parcial1 = (fin1 - inicio1);
   Tiempo_Total1 += Tiempo_Parcial1;
-  encenderLed1=0 ; 
+  encenderLed1=FALSE ; 
+  enviartiempo (Tiempo_Total1, "L1:");
 }
 
-int Encender_Led2()
+void Encender_Led2()
 {
   analogWrite(LEDPin2,regularIntensidadLuminica(analogRead(LDRPin)));
-
-  inicio2 = millis();         
+  if(regulando == FALSE)
+  {
+       inicio2 = millis();         
+  }
+         
 }
 
 void Apagar_Led2()
 {
-  if(encenderLed2==0)
+  if(encenderLed2==FALSE)
     return;
   analogWrite(LEDPin2,LOW);
   fin2 = millis();
   Tiempo_Parcial2 = (fin2 - inicio2);
   Tiempo_Total2 += Tiempo_Parcial2;  
-  encenderLed2=0 ; 
+  encenderLed2=FALSE ; 
+  enviartiempo (Tiempo_Total2, "L2:");
 }
 
 int mediaSonido(){
   unsigned long startMillis= millis();                                                                                                       
  
-   unsigned int signalMax = 0;
-   signalMin = 1024;
+   unsigned int signalMax = FALSE;
+   signalMin = SIGNAL_MIN;
  
    // Recopilar durante la ventana
    unsigned int sample;
    while (millis() - startMillis < sampleWindow)
    {
       sample = analogRead(MICPin);
-      if (sample < 1024)
+      if (sample < SIGNAL_MIN)
       {
          if (sample > signalMax)
          {
@@ -455,12 +503,19 @@ int mediaSonido(){
 }
 
 int regularIntensidadLuminica(int lectura_FotoResistencia){
-    float deltaLuzAmbiente = 960 - 160; //luz maxima menos luz minima ambiente
-    int minimoLed = 0;
-    int maximoLed = 160;
+    float deltaLuzAmbiente = MAX_AMB - MAX_LED; //luz maxima menos luz minima ambiente
+    int minimoLed = MIN_LED;
+    int maximoLed = MAX_LED;
     float deltaPotenciaLed = maximoLed - minimoLed; // delta valores del led
     float porcentajeLuzAmbiente = (lectura_FotoResistencia - deltaPotenciaLed)/deltaLuzAmbiente;
     float porcentajeIluminacionLED = 1-porcentajeLuzAmbiente;
     int valorLed = minimoLed + (porcentajeIluminacionLED * deltaPotenciaLed);
     return valorLed;
-  }
+}
+
+void enviartiempo(unsigned long tiempo, String led){
+    Serial.print("tiempo encendido led1 \t");
+    Serial.println(tiempo);
+    String resultado = led + tiempo;
+    Serial3.println(resultado);
+}

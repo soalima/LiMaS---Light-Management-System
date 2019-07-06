@@ -18,7 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -175,6 +176,62 @@
 
             <FrameLayout
                 android:id="@+id/margenR2"
+                android:layout_width="10dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+            </FrameLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/contenedorButton3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="30dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:foregroundGravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/margenL3"
+                android:layout_width="10dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/btnEstadistica"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Estadisticas" />
+
+            <FrameLayout
+                android:id="@+id/margenM3"
+                android:layout_width="5dp"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/btnResetear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Resetear" />
+
+            <FrameLayout
+                android:id="@+id/margenR3"
                 android:layout_width="10dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">

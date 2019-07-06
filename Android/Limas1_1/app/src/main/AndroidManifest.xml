@@ -26,6 +26,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".activities.EstadisticasActivity"
+            android:label="@string/title_activity_estadisticas"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"></activity>
+        <activity
             android:name=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -34,16 +39,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activities.DeviceListActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
-        </activity>
-
-        <!--- Defino la activity que se comunica, transfierendo datos de los sensores, con Arduino -->
+        </activity> <!-- - Defino la activity que se comunica, transfierendo datos de los sensores, con Arduino -->
         <activity
             android:name=".activities.ComunicationActivity"
             android:screenOrientation="portrait" />

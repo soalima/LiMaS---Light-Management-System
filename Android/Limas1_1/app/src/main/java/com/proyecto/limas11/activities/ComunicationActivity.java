@@ -45,7 +45,7 @@ import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSI
 
 //******************************************** Hilo principal del Activity*********************************
 public class ComunicationActivity extends Activity {
-    Button btnApagar, btnEncender, btnEstadisticaL1, btnEstadisticaL2;
+    Button btnApagar, btnEncender, btnEstadisticas, btnResetear;
     Switch switchL1, switchL2, swLinterna;
     boolean prendertorch, isflashon;
     static Camera cam = null;
@@ -68,8 +68,8 @@ public class ComunicationActivity extends Activity {
         btnApagar = (Button) findViewById(R.id.btnApagar);
         btnEncender = (Button) findViewById(R.id.btnEncender);
 
-        btnEstadisticaL1 = (Button) findViewById(R.id.btnMNDR8);
-        btnEstadisticaL2 = (Button) findViewById(R.id.btnMNDR9);
+        btnEstadisticas = (Button) findViewById(R.id.btnEstadistica);
+        btnResetear = (Button) findViewById(R.id.btnResetear);
 
         switchL1 = (Switch) findViewById(R.id.switchLuz1);
         switchL2 = (Switch) findViewById(R.id.switchLuz2);
@@ -85,8 +85,8 @@ public class ComunicationActivity extends Activity {
         //defino los handlers para los botones Apagar y encender
         btnEncender.setOnClickListener(btnEncenderListener);
         btnApagar.setOnClickListener(btnApagarListener);
-        btnEstadisticaL1.setOnClickListener(btnEstadisticaL1Listener);
-        btnEstadisticaL2.setOnClickListener(btnEstadisticaL2Listener);
+        btnEstadisticas.setOnClickListener(btnEstadisticasListener);
+        btnResetear.setOnClickListener(btnResetearListener);
 
         swLinterna.setOnCheckedChangeListener((new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -200,18 +200,22 @@ public class ComunicationActivity extends Activity {
         }
     };
 
-    private View.OnClickListener btnEstadisticaL1Listener = new View.OnClickListener() {
+    private View.OnClickListener btnEstadisticasListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            enviarComando('8');
+            //enviarComando('8');
             //showToast("Presionado boton estadistica luz 1");
+            Intent newIntent = new Intent(v.getContext(), EstadisticasActivity.class);
+            //newIntent.putParcelableArrayListExtra("device.list", mDeviceList);
+
+            startActivity(newIntent);
         }
     };
 
-    private View.OnClickListener btnEstadisticaL2Listener = new View.OnClickListener() {
+    private View.OnClickListener btnResetearListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            enviarComando('9');
+            //enviarComando('9');
             //showToast("Presionado boton estadistica luz 2");
         }
     };

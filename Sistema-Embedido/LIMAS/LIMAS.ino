@@ -18,7 +18,6 @@ unsigned long ledMillis1;
 unsigned long ledMillis2;     
 int intensidad_luz;
 int contador = 0;
-int VALOR_ALTO=250;
 char c = ' ';
 char read_string[10];
 int regulando=0;
@@ -52,7 +51,7 @@ unsigned long Tiempo_Total2 = 0; //lo que lleva prendido desde que inicio1 ardui
 #define MIN_LED 0
 #define PERIODO_ALARMA 250
 #define PERIODO_LED 150
-
+#define VALOR_ALTO 250
 
 
 void setup() {

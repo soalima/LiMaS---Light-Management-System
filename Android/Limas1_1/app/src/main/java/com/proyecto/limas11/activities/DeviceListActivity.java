@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import android.content.BroadcastReceiver;
@@ -90,6 +91,12 @@ public class DeviceListActivity extends Activity
             Method method = device.getClass().getMethod("removeBond", (Class[]) null);
             method.invoke(device, (Object[]) null);
 
+            SharedPreferences settings = getSharedPreferences("preferenciasFile", 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("addr", null);
+
+            // Commit the edits!
+            editor.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -145,8 +152,14 @@ public class DeviceListActivity extends Activity
                     //Para eso se le envia como parametro la direccion(MAC) del bluethoot Arduino
                     String direccionBluethoot = dispositivo.getAddress();
 
+                    //persistencia
                     ((AlmacenGlobal) getApplication()).setDirBluetooth(direccionBluethoot);
+                    SharedPreferences settings = getSharedPreferences("preferenciasFile", 0);
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putString("addr", direccionBluethoot);
 
+                    // Commit the edits!
+                    editor.commit();
 
                     Intent i = new Intent(DeviceListActivity.this, ComunicationActivity.class);
                     i.putExtra("Direccion_Bluethoot", direccionBluethoot);

@@ -36,6 +36,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.ContentValues.TAG;
 import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSIONS;
 
 /*********************************************************************************************************
@@ -142,13 +143,14 @@ public class ComunicationActivity extends Activity {
     //Cuando se ejecuta el evento onPause se cierra el socket Bluethoot, para no recibiendo datos
     public void onPause() {
         super.onPause();
-
+        /*
         try {
             //Don't leave Bluetooth sockets open when leaving activity
-            btSocket.close();
+            //btSocket.close();
         } catch (IOException e2) {
             //insert code to deal with this
         }
+        */
     }
 
     //Listener del boton encender que envia  msj para enceder Led a Arduino atraves del Bluethoot
@@ -339,7 +341,12 @@ public class ComunicationActivity extends Activity {
         }
         if (device != null) {
             Log.e("[onBACKPRESSED:Limas]", "CANCELANDO THREAD");
-            bluetoothConnection.cancel();
+            try {
+                bluetoothConnection.cancel();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "No hay nada que cerrar");
+            }
         }
         sensorManager.unregisterListener(lightSensorEventListener);
         sensorManager.unregisterListener(proximitySensorEventListener);

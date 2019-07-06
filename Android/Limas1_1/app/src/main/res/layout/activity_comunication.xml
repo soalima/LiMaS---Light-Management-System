@@ -26,7 +26,8 @@
             android:layout_gravity="center_horizontal"
             android:foregroundGravity="center_horizontal"
             android:gravity="center_horizontal"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <FrameLayout
                 android:id="@+id/margenL1"

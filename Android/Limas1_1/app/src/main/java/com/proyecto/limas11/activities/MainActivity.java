@@ -1,5 +1,6 @@
 package com.proyecto.limas11.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -12,6 +13,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.proyecto.limas11.AlmacenGlobal;
 import com.proyecto.limas11.R;
 import com.proyecto.limas11.fragments.BluetoothFragment;
 import com.proyecto.limas11.fragments.ConfiguracionFragment;
@@ -27,6 +29,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences settings = getSharedPreferences("preferenciasFile", 0);
+        ((AlmacenGlobal) getApplication()).setDirBluetooth(settings.getString("addr", null));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

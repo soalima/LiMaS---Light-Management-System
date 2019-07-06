@@ -298,11 +298,15 @@ public class BluetoothConnectionService {
     //Método que realiza la escritura de la información.
     public void write(byte[] out) {
         //Se crea un objeto temporal
-        ConnectedThread r;
+        //ConnectedThread r;
 
         // Se sincronizan las copias de ConnectedThread
         Log.d(TAG, "write: Write llamado.");
         //Realiza la escritura
-        myConnectedThread.write(out);
+        try {
+            myConnectedThread.write(out);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

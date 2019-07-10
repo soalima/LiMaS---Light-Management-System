@@ -22,7 +22,7 @@ public class BluetoothConnectionService {
     private static final String TAG = "BluetoothConnection";
 
     //Emisor de la información hacia otros dispositivos.
-    private static final String appName = "ChangoSmart";
+    private static final String appName = "Limas";
 
     //UUID necesario para la comunicación.
     private static final UUID MY_UUID_INSECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");

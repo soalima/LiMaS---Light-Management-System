@@ -34,6 +34,7 @@ import com.proyecto.limas11.R;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static android.content.ContentValues.TAG;
@@ -45,6 +46,20 @@ import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSI
 
 //******************************************** Hilo principal del Activity*********************************
 public class ComunicationActivity extends Activity {
+    private static final int LUZMINIMA = 70;
+    private static final int SEGUNDO = 1000;
+    private static  final char ENCENDER1 = '1';
+    private static  final char ENCENDER2 = '5';
+    private static  final char APAGAR1 = '2';
+    private static  final char APAGAR2 = '6';
+    private static  final char SHAKE1 = '4';
+    private static  final char SHAKE2 = '7';
+    private static  final char RESET1 = '8';
+    private static  final char RESET2 = '9';
+    private static  final char ALARMA = '3';
+    private static final int ACELERACION = 4;
+    private static final int PROXIMIDAD = 3;
+
     Button btnApagar, btnEncender, btnEstadisticas, btnResetear;
     Switch switchL1, switchL2, swLinterna;
     boolean prendertorch, isflashon;
@@ -58,6 +73,10 @@ public class ComunicationActivity extends Activity {
     private static String address = null;
     private BluetoothDevice device;
     private SensorManager sensorManager;
+    private String arduino1 = null;
+    private String arduino2 = null;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,11 +132,40 @@ public class ComunicationActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             //Acá se recibe el mensaje del arduino y se evalua
-            String text = intent.getStringExtra("theMessage");
+            String LED1 = "L1";
+            String LED2 = "L2";
+            String arduino= intent.getStringExtra("theMessage");
+            String[] division = arduino.split("\\:");
+            if (division[0].equals(LED1)) {
+                //paso el valor a segundos
+                /*String valor = Arrays.toSring(division[1]);
+                String dato = valor.split("\r");*/
+               // String dato = division[1].substring(0,division[1].indexOf("\r"));
+                Long numero1 = Long.parseLong(division[1]);
+                double L1 = (double) numero1 / SEGUNDO;
+                arduino1=(Double.toString(L1));
+            } else if (division[0].equals(LED2)) {
+              //  Long numero3 = Long.parseLong(arduino);
+               // String dato = division[1].substring(0,division[1].indexOf("\r"));
+                Long numero2 = Long.parseLong(division[1]);
+                double L2 = (double) numero2 / SEGUNDO;
+                arduino2=(Double.toString(L2));
+                if (division.length > 2 && division[2].equals(LED1)) {
+                    //paso el valor a segundos
+                /*String valor = Arrays.toSring(division[1]);
+                String dato = valor.split("\r");*/
+                  //  String dato2 = division[4].substring(0, division[4].indexOf("\r"));
+                    Long numero1 = Long.parseLong(division[3]);
+                    double L1 = (double) numero1 / SEGUNDO;
+                    arduino1 = (Double.toString(L1));
+                }
+            }
 
-            Log.d("ComandoRecepcion", text);
+            Log.d("ComandoRecepcion", arduino);
+            //Log.d("Tiempo Led 1", arduino1);
 
-            showToast(text);
+
+
         }
     };
 
@@ -175,11 +223,11 @@ public class ComunicationActivity extends Activity {
         @Override
         public void onClick(View v) {
             if (switchL1.isChecked()) {
-                enviarComando('1');
+                enviarComando(ENCENDER1);
                 //showToast("Encender el LED 1");
             }
             if (switchL2.isChecked()) {
-                enviarComando('5');
+                enviarComando(ENCENDER2);
                 //showToast("Encender el LED 2");
             }
         }
@@ -190,11 +238,11 @@ public class ComunicationActivity extends Activity {
         @Override
         public void onClick(View v) {
             if (switchL1.isChecked()) {
-                enviarComando('2');
+                enviarComando(APAGAR1);
                 //showToast("Apagar el LED 1");
             }
             if (switchL2.isChecked()) {
-                enviarComando('6');
+                enviarComando(APAGAR2);
                 //showToast("Apagar el LED 2");
             }
         }
@@ -205,18 +253,31 @@ public class ComunicationActivity extends Activity {
         public void onClick(View v) {
             //enviarComando('8');
             //showToast("Presionado boton estadistica luz 1");
+
             Intent newIntent = new Intent(v.getContext(), EstadisticasActivity.class);
+            newIntent.putExtra("LED1",arduino1);
+            newIntent.putExtra("LED2",arduino2);
             //newIntent.putParcelableArrayListExtra("device.list", mDeviceList);
 
             startActivity(newIntent);
+
         }
     };
 
     private View.OnClickListener btnResetearListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            //enviarComando('9');
-            //showToast("Presionado boton estadistica luz 2");
+            if (switchL1.isChecked()) {
+                enviarComando(RESET1);
+                arduino1= "0";
+                showToast("Led 1 Reiniciado");
+            }
+            if (switchL2.isChecked()) {
+                enviarComando(RESET2);
+                arduino2= "0";
+                showToast("Led 2 Reiniciado");
+            }
+
         }
     };
 
@@ -234,13 +295,13 @@ public class ComunicationActivity extends Activity {
         public void onSensorChanged(SensorEvent event) {
             if (event.sensor.getType() == Sensor.TYPE_LIGHT && checkPermissions()) {
                 long actualTime = event.timestamp;
-                if (actualTime - lastUpdate < 1000) {
+                if (actualTime - lastUpdate < SEGUNDO) {
                     return;
                 }
                 lastUpdate = actualTime;
 
                 float currentLux = event.values[0];
-                if (currentLux < 70 && prendertorch == true) {
+                if (currentLux < LUZMINIMA && prendertorch == true) {
                     on(null);
                 } else {
                     off(null);
@@ -266,17 +327,17 @@ public class ComunicationActivity extends Activity {
                 float accelationSquareRoot = (x * x + y * y)
                         / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
                 long actualTime = event.timestamp;
-                if (accelationSquareRoot >= 4) //
+                if (accelationSquareRoot >= ACELERACION) //
                 {
-                    if (actualTime - lastUpdate < 1000) {
+                    if (actualTime - lastUpdate < SEGUNDO) {
                         return;
                     }
                     lastUpdate = actualTime;
                     if (switchL1.isChecked()) {
-                        enviarComando('4');
+                        enviarComando(SHAKE1);
                     }
                     if (switchL2.isChecked()) {
-                        enviarComando('7');
+                        enviarComando(SHAKE2);
                     }
                 }
             }
@@ -292,8 +353,8 @@ public class ComunicationActivity extends Activity {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-                if (event.values[0] == 3)
-                    enviarComando('3');
+                if (event.values[0] == PROXIMIDAD)
+                    enviarComando(ALARMA);
             }
         }
     };

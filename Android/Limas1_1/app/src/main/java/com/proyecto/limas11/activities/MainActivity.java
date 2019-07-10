@@ -62,12 +62,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_luz:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new LuzFragment()).commit();
                 break;
-            case R.id.nav_config:
+            /*case R.id.nav_config:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new ConfiguracionFragment()).commit();
                 break;
             case R.id.nav_estadistica:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new EstadisticasFragment()).commit();
-                break;
+                break;*/
             case R.id.nav_about:
                 Toast.makeText(this, "About sin implementar", Toast.LENGTH_SHORT).show();
                 break;

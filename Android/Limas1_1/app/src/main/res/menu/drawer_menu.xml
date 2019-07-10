@@ -16,14 +16,6 @@
             android:id="@+id/nav_luz"
             android:icon="@drawable/ic_light"
             android:title="Control Luz" />
-        <item
-            android:id="@+id/nav_config"
-            android:icon="@drawable/ic_config"
-            android:title="Configurar Luz" />
-        <item
-            android:id="@+id/nav_estadistica"
-            android:icon="@drawable/ic_action_name"
-            android:title="Estadisticas" />
     </group>
 
     <item android:title="Extra">

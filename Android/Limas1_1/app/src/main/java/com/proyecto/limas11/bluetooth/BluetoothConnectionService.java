@@ -13,6 +13,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Stack;
 import java.util.UUID;
 
 //Clase helper que brinda servicios de comunicación (envío/recepción) de información con otros dispositivos bt vía threads.
@@ -21,10 +22,12 @@ public class BluetoothConnectionService {
     private static final String TAG = "BluetoothConnection";
 
     //Emisor de la información hacia otros dispositivos.
-    private static final String appName = "Limas";
+    private static final String appName = "ChangoSmart";
 
     //UUID necesario para la comunicación.
     private static final UUID MY_UUID_INSECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+    private static Stack<byte[]> messagesQueue;
 
     private final BluetoothAdapter myBluetoothAdapter;
 
@@ -39,16 +42,16 @@ public class BluetoothConnectionService {
 
     private BluetoothDevice myDevice;
 
-    private StringBuilder constructorCadena;
-
     //UUID del dispositivo con el que voy a comunicarme.
     private UUID deviceUUID;
+    private static  final long PAUSA = 600;
 
     //private ProgressDialog myProgressDialog;
 
     public BluetoothConnectionService(Context context) {
         myContext = context;
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        messagesQueue = new Stack<>();
         start();
     }
 
@@ -225,31 +228,40 @@ public class BluetoothConnectionService {
         public void run() {
             //Buffer para almacenar el mensaje
             byte[] buffer = new byte[1024];
-            StringBuilder sb = new StringBuilder();
 
             // bytes retornados por el read();
-            int bytes;
+            int bytes = 0;
 
             // Siempre se sigue escuchando por inputs aunque haya excepciones.
             while (true) {
+                //Antes de leer envía lo que tenga almacenado, si hay algo para escribir, en caso de haberlo, escribe.
+                while (!messagesQueue.empty()) {
+                    myConnectedThread.write(messagesQueue.pop());
+                }
                 // Se lee del input stream.
                 try {
-                    bytes = myInStream.read(buffer);
+                    //El available se encarga de que el read no detenga la ejecución del hilo si no tiene nada que leer.
+                    while (myInStream.available() > 0) {
+                        bytes = myInStream.read(buffer);
+                        if (bytes < 0) break;
+                        Log.d(TAG, "InputStream: " + "No hay mas mensajes - " + bytes);
+                    }
+
                     String incomingMessage = new String(buffer, 0, bytes);
                     Log.d(TAG, "InputStream: " + incomingMessage);
 
-                    sb.append(incomingMessage);
-                    Log.d(TAG, "StringBuilder: " + sb.toString());
-                    Log.d(TAG, "LastChar: " + incomingMessage.charAt(incomingMessage.length() - 1));
-                    if (incomingMessage.charAt(incomingMessage.length() - 1) == '\n') {
-                        String mensajeCompleto = sb.toString();
-                        Log.d(TAG, "MensajeCompleto: " + mensajeCompleto);
-                        sb = new StringBuilder(); //Reseteo el stringBuilder para poder escuchar el proximo mensaje limpio
-                        //Se declara un intent implicito para que al recibir un mensaje del arduino lo comunique a la vista que esté activa en ese momento.
-                        Intent incomingMessageIntent = new Intent("IncomingMessage");
-                        incomingMessageIntent.putExtra("theMessage", mensajeCompleto);
-                        LocalBroadcastManager.getInstance(myContext).sendBroadcast(incomingMessageIntent);
+                    //Se declara un intent implicito para que al recibir un mensaje del arduino lo comunique a la vista que esté activa en ese momento.
+                    Intent incomingMessageIntent = new Intent("IncomingMessage");
+                    incomingMessageIntent.putExtra("theMessage", incomingMessage);
+                    LocalBroadcastManager.getInstance(myContext).sendBroadcast(incomingMessageIntent);
+
+                    //Se espera una cantidad de 2 segundo para que se llene el buffer en caso de que haya algo.
+                    try {
+                        Thread.sleep(PAUSA);
+                    } catch (Exception e) {
+                        Log.e(TAG, "READ: Error al recibir el mensaje. " + e.getMessage());
                     }
+
                 } catch (Exception e) {
                     Log.e(TAG, "READ: Error al recibir el mensaje. " + e.getMessage());
                     //Es importante cortar con el break el ciclo.
@@ -297,16 +309,10 @@ public class BluetoothConnectionService {
 
     //Método que realiza la escritura de la información.
     public void write(byte[] out) {
-        //Se crea un objeto temporal
-        //ConnectedThread r;
-
         // Se sincronizan las copias de ConnectedThread
         Log.d(TAG, "write: Write llamado.");
-        //Realiza la escritura
-        try {
-            myConnectedThread.write(out);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        //Se agrega el mensaje recibido a una lista para ser enviado por el thread principal.
+        messagesQueue.push(out);
     }
 }

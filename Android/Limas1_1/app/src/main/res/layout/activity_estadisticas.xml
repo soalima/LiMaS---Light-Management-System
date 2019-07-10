@@ -6,7 +6,138 @@
     android:layout_height="match_parent"
     tools:context=".activities.EstadisticasActivity">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <include layout="@layout/content_estadisticas" />
+        <TextView
+            android:id="@+id/tvVidaLed2"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="276dp"
+            android:layout_marginTop="164dp"
+            android:text="3600"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tvLed1"
+            android:layout_width="94dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="160dp"
+            android:layout_marginTop="64dp"
+            android:text="LED 1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvLed2"
+            android:layout_width="94dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="276dp"
+            android:layout_marginTop="64dp"
+            android:text="LED 2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvVidaLed1"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="160dp"
+            android:layout_marginTop="164dp"
+            android:text="3600"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvUsoLed1"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="160dp"
+            android:layout_marginTop="244dp"
+            android:text="TextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvUsoLed2"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="276dp"
+            android:layout_marginTop="244dp"
+            android:text="TextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvRestanteLed1"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="160dp"
+            android:layout_marginTop="324dp"
+            android:text="TextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvRestanteLed2"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="276dp"
+            android:layout_marginTop="324dp"
+            android:text="TextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvLeds"
+            android:layout_width="94dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="64dp"
+            android:text="LEDS:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTiempoVida"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="164dp"
+            android:text="Tiempo de Vida"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTiempoUso"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="244dp"
+            android:text="Tiempo de Uso"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTiempoRestante"
+            android:layout_width="94dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="324dp"
+            android:text="Vida Restante"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnVolver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="160dp"
+            android:layout_marginBottom="176dp"
+            android:text="VOLVER"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

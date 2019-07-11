@@ -1,13 +1,13 @@
 #include<stdlib.h>
-const int sampleWindow = 50; // Ancho ventana en mS (50 mS = 20Hz)
+const int sampleWindow = 50;
 unsigned int signalMin;
-const int BUZZERPin = 44; //pin del buzzer
-int LEDPin1 = 12; //pin del led
-int LEDPin2 = 13; //pin del led
-int i;//Variable auxiliar para condicionales
+const int BUZZERPin = 44;
+int LEDPin1 = 12;
+int LEDPin2 = 13;
+int i;
 int MICPin = A8;
-byte PIRPin = 34; // Input for HC-S501
-int pir_value; // Place to store read PIR Value
+byte PIRPin = 34;
+int pir_value;
 const int LDRPin = A3;
 int LDR_value;
 int encenderLed1=0;
@@ -25,14 +25,14 @@ unsigned long millisAlarma;
 unsigned long millisPrender;
 unsigned long millisApagar;
 unsigned long millisflag;
-unsigned long inicio1; //se prendio el led
-unsigned long fin1;    //se apago el led
-unsigned long Tiempo_Parcial1; //lo que duro prendido una vez
-unsigned long Tiempo_Total1 = 0; //lo que lleva prendido desde que inicio1 arduino
-unsigned long inicio2; //se prendio el led
-unsigned long fin2;    //se apago el led
-unsigned long Tiempo_Parcial2; //lo que duro prendido una vez
-unsigned long Tiempo_Total2 = 0; //lo que lleva prendido desde que inicio1 arduino
+unsigned long inicio1;
+unsigned long fin1;
+unsigned long Tiempo_Parcial1;
+unsigned long Tiempo_Total1 = 0;
+unsigned long inicio2;
+unsigned long fin2;
+unsigned long Tiempo_Parcial2;
+unsigned long Tiempo_Total2 = 0;
 
 
 #define TRUE  1
@@ -58,9 +58,9 @@ unsigned long Tiempo_Total2 = 0; //lo que lleva prendido desde que inicio1 ardui
 
 
 void setup() {
-  pinMode(BUZZERPin, OUTPUT);  //defin1ir pin como salida del buzzer (pwm)
+  pinMode(BUZZERPin, OUTPUT);
   noTone(BUZZERPin);
-  pinMode(LEDPin1, OUTPUT);//Se inicializa como OUTPUT el pin a usar. Debe ser PWM
+  pinMode(LEDPin1, OUTPUT);
   pinMode(PIRPin, INPUT); 
   pinMode(MICPin, INPUT); 
   Serial.begin(9600);
@@ -70,19 +70,17 @@ void setup() {
 
 void loop() 
 {  
-  //encendido por sonido
    char aux;
    unsigned int sample;   
    unsigned int umbral=mediaSonido()*8+signalMin;
    unsigned long stopMillis= millis()+1000;   
    int lectura_Infrarrojo;       
-   int Tiempo_Alarna = 20000; //Si el celu no esta conectado la alarma durara este tiempo, luego puede configurarse por bt.
+   int Tiempo_Alarna = 20000;
    
 
    while (millis() < stopMillis)
    {                 
     
-    // Actualizar la intenzidad de la luz
     if(encenderLed1==TRUE)
     {
       regulando = TRUE;
@@ -96,54 +94,36 @@ void loop()
       Encender_Led2();
       regulando = FALSE;
     }
-    // Verificamos el estado del sensor de sonido para encender/apagar led
     if( Verificar_Sensor_Sonido(umbral,encenderLed1) == 1 )
     {
     
       encenderLed1 = TRUE;
       flagMic = 1;
-    }//El flag del mic es para evitar que el sensor de movimiento me apague el led si lo prendemos por aplauso
+    }
     else
     {
       
       encenderLed1 = FALSE;
       flagMic=0;
     }
-    
-
-    // Activacióm del la luz por sensor de Bluetooth
-    
-    if( Verificar_Bluetooth()==1)//Verificar_Bluetooth() == 1 ) //Verificar_Bluetooth() == 1 )Verificar_Serial() == 1)
+    if( Verificar_Bluetooth()==1)
     {
-    
-      //encenderLed1 = TRUE;
-      flagMic = 1; //El flag del mic es para evitar que el sensor de movimiento me apague el led si lo prendemos por bluetooth
+
+      flagMic = 1;
     
     }
     else
     {
-      
-      //encenderLed1 = FALSE;
+
       flagMic = FALSE;
             
     }
-    //delay(350);
-   /* if( Verificar_Sensor_Infrarrojo(encenderLed1) == TRUE )
-    {
-      encenderLed1 = TRUE;
-           
-    }
-    else
-    {
-      encenderLed1 = FALSE;   
-    }   */ 
   }
 }
 
 int Verificar_Sensor_Infrarrojo(int ultimo_estado)
 {
 
-  // Activación del la luz por sensor de Bluetooth 
   if( digitalRead(PIRPin) == TRUE && flagMic==FALSE)
   {                   
       Encender_Led1();                     
@@ -152,7 +132,6 @@ int Verificar_Sensor_Infrarrojo(int ultimo_estado)
   }
   else if( flagMic==0) 
   {      
-      //Serial.println(digitalRead(PIRPin)); 
      Apagar_Led1();         
      encenderLed1 = FALSE;
      return FALSE;    
@@ -190,18 +169,16 @@ int Verificar_Bluetooth()
       {
         millisAlarma = millis()+PERIODO_ALARMA;
         while(millis()< millisAlarma){
-        tone(BUZZERPin, TONO); //activa un tono de frecuencia determinada en un pin dado        
+        tone(BUZZERPin, TONO);    
         analogWrite(LEDPin1,HIGH);    
         analogWrite(LEDPin2,LOW);                           
-        }//delay(250);        
-
-
+        }
         millisAlarma = millis()+PERIODO_ALARMA;
         while(millis()< millisAlarma){
         noTone(BUZZERPin); 
         analogWrite(LEDPin2,HIGH);
         analogWrite(LEDPin1,LOW);   
-        }//delay(250); 
+        }
         if(Serial3.available()){
           aux = Serial3.read();             
           if( aux == ALARMA )
@@ -212,11 +189,9 @@ int Verificar_Bluetooth()
       encenderLed2 = FALSE;  
       encenderLed1 = FALSE;      
       Apagar_Led1();
-      
     }
     if( c == SHAKE1)
     {
-      //contador++;
       if( encenderLed1 == FALSE )
       {
         Encender_Led1(); 
@@ -234,7 +209,6 @@ int Verificar_Bluetooth()
     {              
       Encender_Led2();
       encenderLed2 = TRUE;
-
       return FALSE;    
     }
     if( c == APAGAR2)
@@ -246,9 +220,7 @@ int Verificar_Bluetooth()
     }
     if( c == SHAKE2)
     {
-     // Serial.println("entre");
       Serial.println(contador);
-      //contador++;
       if( encenderLed2 == FALSE )
       {
         Encender_Led2(); 
@@ -259,7 +231,6 @@ int Verificar_Bluetooth()
       {
         Apagar_Led2();      
         Serial.println("apagar por agitacion");
-        //encenderLed2 = FALSE;
       }
     }
     
@@ -288,8 +259,6 @@ int Verificar_Bluetooth()
 int Verificar_Sensor_Sonido( int media , int ultimo_estado)
 {
   int sample;
-  
-  // Activacion de la luz por sensor de sonido
   sample = analogRead(MICPin);  
   if(sample > media)
   {
@@ -298,7 +267,6 @@ int Verificar_Sensor_Sonido( int media , int ultimo_estado)
       millisPrender = millis()+PERIODO_LED;
       while(millis()< millisPrender)
           Encender_Led1();
-     // delay(150);
       return TRUE;
       
     }
@@ -306,13 +274,11 @@ int Verificar_Sensor_Sonido( int media , int ultimo_estado)
     {
       millisApagar = millis()+PERIODO_LED;
       while(millis()< millisApagar)
-          Apagar_Led1();     
-      //delay(150);
+          Apagar_Led1();   
       return FALSE;      
 
     }      
   }
-
   return encenderLed1;
     
 }
@@ -369,8 +335,6 @@ int mediaSonido(){
  
    unsigned int signalMax = FALSE;
    signalMin = SIGNAL_MIN;
- 
-   // Recopilar durante la ventana
    unsigned int sample;
    while (millis() - startMillis < sampleWindow)
    {
@@ -379,24 +343,24 @@ int mediaSonido(){
       {
          if (sample > signalMax)
          {
-            signalMax = sample;  // Actualizar máximo
+            signalMax = sample;
          }
          else if (sample < signalMin)
          {
-            signalMin = sample;  // Actualizar mínimo
+            signalMin = sample;
          }
       }
    }
 
-   return (signalMax - signalMin)/2;  // Amplitud del sonido
+   return (signalMax - signalMin)/2;
    
 }
 
 int regularIntensidadLuminica(int lectura_FotoResistencia){
-    float deltaLuzAmbiente = MAX_AMB - MAX_LED; //luz maxima menos luz minima ambiente
+    float deltaLuzAmbiente = MAX_AMB - MAX_LED;
     int minimoLed = MIN_LED;
     int maximoLed = MAX_LED;
-    float deltaPotenciaLed = maximoLed - minimoLed; // delta valores del led
+    float deltaPotenciaLed = maximoLed - minimoLed;
     float porcentajeLuzAmbiente = (lectura_FotoResistencia - deltaPotenciaLed)/deltaLuzAmbiente;
     float porcentajeIluminacionLED = 1-porcentajeLuzAmbiente;
     int valorLed = minimoLed + (porcentajeIluminacionLED * deltaPotenciaLed);

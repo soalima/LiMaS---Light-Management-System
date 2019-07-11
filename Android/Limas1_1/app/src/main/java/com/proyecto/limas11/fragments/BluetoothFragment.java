@@ -47,7 +47,7 @@ public class BluetoothFragment extends Fragment {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA
     };
-    public static final int MULTIPLE_PERMISSIONS = 10; // code you want.
+    public static final int MULTIPLE_PERMISSIONS = 10;
 
     private ProgressDialog mProgressDlg;
     private ArrayList<BluetoothDevice> mDeviceList = new ArrayList<BluetoothDevice>();
@@ -77,7 +77,6 @@ public class BluetoothFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mProgressDlg = new ProgressDialog(getActivity());
@@ -93,44 +92,32 @@ public class BluetoothFragment extends Fragment {
 
     protected  void enableComponent()
     {
-        //se determina si existe bluethoot en el celular
         if (mBluetoothAdapter == null)
         {
-            //si el celular no soporta bluethoot
             showUnsupported();
         }
         else
         {
-            //si el celular soporta bluethoot, se definen los listener para los botones de la activity
             mPairedBtn.setOnClickListener(btnEmparejarListener);
 
             mScanBtn.setOnClickListener(btnBuscarListener);
 
             mActivateBtn.setOnClickListener(btnActivarListener);
-
-            //se determina si esta activado el bluethoot
             if (mBluetoothAdapter.isEnabled())
             {
-                //se informa si esta habilitado
                 showEnabled();
             }
             else
             {
-                //se informa si esta deshabilitado
                 showDisabled();
             }
         }
-
-
-        //se definen un broadcastReceiver que captura el broadcast del SO cuando captura los siguientes eventos:
         IntentFilter filter = new IntentFilter();
 
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED); //Cambia el estado del Bluethoot (Acrtivado /Desactivado)
-        filter.addAction(BluetoothDevice.ACTION_FOUND); //Se encuentra un dispositivo bluetooth al realizar una busqueda
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED); //Cuando se comienza una busqueda de bluethoot
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED); //cuando la busqueda de bluethoot finaliza
-
-        //se define (registra) el handler que captura los broadcast anterirmente mencionados.
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         getActivity().registerReceiver(mReceiver, filter);
     }
 
@@ -148,8 +135,6 @@ public class BluetoothFragment extends Fragment {
     private  boolean checkPermissions() {
         int result;
         List<String> listPermissionsNeeded = new ArrayList<>();
-
-        //Se chequea si la version de Android es menor a la 6
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
         }
@@ -173,14 +158,12 @@ public class BluetoothFragment extends Fragment {
         switch (requestCode) {
             case MULTIPLE_PERMISSIONS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permissions granted.
-                    enableComponent(); // Now you call here what ever you want :)
+                    enableComponent();
                 } else {
                     String perStr = "";
                     for (String per : permissions) {
                         perStr += "\n" + per;
                     }
-                    // permissions list of don't granted permission
                     Toast.makeText(getActivity(), "ATENCION: La aplicacion no funcionara " + "correctamente debido a la falta de Permisos", Toast.LENGTH_LONG).show();
                 }
                 return;

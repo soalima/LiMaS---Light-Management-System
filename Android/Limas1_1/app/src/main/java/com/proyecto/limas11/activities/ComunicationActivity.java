@@ -40,11 +40,6 @@ import java.util.List;
 import static android.content.ContentValues.TAG;
 import static com.proyecto.limas11.fragments.BluetoothFragment.MULTIPLE_PERMISSIONS;
 
-/*********************************************************************************************************
- * Activity que tiene la logica de las luces
- **********************************************************************************************************/
-
-//******************************************** Hilo principal del Activity*********************************
 public class ComunicationActivity extends Activity {
     private static final int LUZMINIMA = 70;
     private static final int SEGUNDO = 1000;
@@ -83,7 +78,6 @@ public class ComunicationActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comunication);
 
-        //Se definen los componentes del layout
         btnApagar = (Button) findViewById(R.id.btnApagar);
         btnEncender = (Button) findViewById(R.id.btnEncender);
 
@@ -98,10 +92,8 @@ public class ComunicationActivity extends Activity {
         switchL2.setChecked(false);
         swLinterna.setChecked(false);
 
-        //obtengo el adaptador del bluethoot
         btAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        //defino los handlers para los botones Apagar y encender
         btnEncender.setOnClickListener(btnEncenderListener);
         btnApagar.setOnClickListener(btnApagarListener);
         btnEstadisticas.setOnClickListener(btnEstadisticasListener);
@@ -121,40 +113,25 @@ public class ComunicationActivity extends Activity {
         }));
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        /*
-        sensorManager.registerListener(accelerometerSensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(proximitySensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(lightSensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT), SensorManager.SENSOR_DELAY_NORMAL);
-        */
     }
 
     BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Acá se recibe el mensaje del arduino y se evalua
+
             String LED1 = "L1";
             String LED2 = "L2";
             String arduino= intent.getStringExtra("theMessage");
             String[] division = arduino.split("\\:");
             if (division[0].equals(LED1)) {
-                //paso el valor a segundos
-                /*String valor = Arrays.toSring(division[1]);
-                String dato = valor.split("\r");*/
-               // String dato = division[1].substring(0,division[1].indexOf("\r"));
                 Long numero1 = Long.parseLong(division[1]);
                 double L1 = (double) numero1 / SEGUNDO;
                 arduino1=(Double.toString(L1));
             } else if (division[0].equals(LED2)) {
-              //  Long numero3 = Long.parseLong(arduino);
-               // String dato = division[1].substring(0,division[1].indexOf("\r"));
                 Long numero2 = Long.parseLong(division[1]);
                 double L2 = (double) numero2 / SEGUNDO;
                 arduino2=(Double.toString(L2));
                 if (division.length > 2 && division[2].equals(LED1)) {
-                    //paso el valor a segundos
-                /*String valor = Arrays.toSring(division[1]);
-                String dato = valor.split("\r");*/
-                  //  String dato2 = division[4].substring(0, division[4].indexOf("\r"));
                     Long numero1 = Long.parseLong(division[3]);
                     double L1 = (double) numero1 / SEGUNDO;
                     arduino1 = (Double.toString(L1));
@@ -162,10 +139,6 @@ public class ComunicationActivity extends Activity {
             }
 
             Log.d("ComandoRecepcion", arduino);
-            //Log.d("Tiempo Led 1", arduino1);
-
-
-
         }
     };
 
@@ -173,17 +146,13 @@ public class ComunicationActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-
-        //Obtengo el parametro, aplicando un Bundle, que me indica la Mac Adress del HC05
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
 
         address = extras.getString("Direccion_Bluethoot");
         device = btAdapter.getRemoteDevice(address);
         bluetoothConnection = new BluetoothConnectionService(getApplicationContext());
-        //Se declara un receiver para obtener los datos que envíe el embebebido.
         LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver, new IntentFilter("IncomingMessage"));
-        //Si tengo un disposito conectado comienzo la conexión.
         bluetoothConnection.startClient(device, bluetoothConnection.getDeviceUUID());
 
         sensorManager.registerListener(accelerometerSensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
@@ -193,17 +162,8 @@ public class ComunicationActivity extends Activity {
 
 
     @Override
-    //Cuando se ejecuta el evento onPause se cierra el socket Bluethoot, para no recibiendo datos
     public void onPause() {
         super.onPause();
-        /*
-        try {
-            //Don't leave Bluetooth sockets open when leaving activity
-            //btSocket.close();
-        } catch (IOException e2) {
-            //insert code to deal with this
-        }
-        */
         if (device != null) {
             Log.e("[onBACKPRESSED:Limas]", "CANCELANDO THREAD");
             try {
@@ -218,32 +178,27 @@ public class ComunicationActivity extends Activity {
         sensorManager.unregisterListener(accelerometerSensorEventListener);
     }
 
-    //Listener del boton encender que envia  msj para enceder Led a Arduino atraves del Bluethoot
+
     private View.OnClickListener btnEncenderListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (switchL1.isChecked()) {
                 enviarComando(ENCENDER1);
-                //showToast("Encender el LED 1");
             }
             if (switchL2.isChecked()) {
                 enviarComando(ENCENDER2);
-                //showToast("Encender el LED 2");
             }
         }
     };
 
-    //Listener del boton apagar que envia  msj para Apagar Led a Arduino atraves del Bluethoot
     private View.OnClickListener btnApagarListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (switchL1.isChecked()) {
                 enviarComando(APAGAR1);
-                //showToast("Apagar el LED 1");
             }
             if (switchL2.isChecked()) {
                 enviarComando(APAGAR2);
-                //showToast("Apagar el LED 2");
             }
         }
     };
@@ -251,13 +206,10 @@ public class ComunicationActivity extends Activity {
     private View.OnClickListener btnEstadisticasListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            //enviarComando('8');
-            //showToast("Presionado boton estadistica luz 1");
 
             Intent newIntent = new Intent(v.getContext(), EstadisticasActivity.class);
             newIntent.putExtra("LED1",arduino1);
             newIntent.putExtra("LED2",arduino2);
-            //newIntent.putParcelableArrayListExtra("device.list", mDeviceList);
 
             startActivity(newIntent);
 
@@ -288,7 +240,6 @@ public class ComunicationActivity extends Activity {
     SensorEventListener lightSensorEventListener = new SensorEventListener() {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // TODO Auto-generated method stub
         }
 
         @Override
@@ -313,7 +264,6 @@ public class ComunicationActivity extends Activity {
     SensorEventListener accelerometerSensorEventListener = new SensorEventListener() {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // TODO Auto-generated method stub
         }
 
         @Override
@@ -327,7 +277,7 @@ public class ComunicationActivity extends Activity {
                 float accelationSquareRoot = (x * x + y * y)
                         / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
                 long actualTime = event.timestamp;
-                if (accelationSquareRoot >= ACELERACION) //
+                if (accelationSquareRoot >= ACELERACION)
                 {
                     if (actualTime - lastUpdate < SEGUNDO) {
                         return;
@@ -347,7 +297,6 @@ public class ComunicationActivity extends Activity {
     SensorEventListener proximitySensorEventListener = new SensorEventListener() {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            // TODO Auto-generated method stub
         }
 
         @Override
@@ -382,8 +331,6 @@ public class ComunicationActivity extends Activity {
     private boolean checkPermissions() {
         int result;
         List<String> listPermissionsNeeded = new ArrayList<>();
-
-        //Se chequea si la version de Android es menor a la 6
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
         }
@@ -401,14 +348,10 @@ public class ComunicationActivity extends Activity {
         return true;
     }
 
-    //Método para envíar información al arduino.
+
     public void enviarComando(char comando) {
         if (device == null) {
-            //Si no estoy conectado al bluetooth o se pierde la señal
-            // Pido reconectarse
-            //showToast("No estás conectado a ningún dispositivo. Conectate vía bluetooth.");
         } else {
-            //showToast("Caracter a enviar: " + comando);
             byte[] commandInBytes = String.valueOf(comando).getBytes(Charset.defaultCharset());
 
             bluetoothConnection.write(commandInBytes);
@@ -441,14 +384,11 @@ public class ComunicationActivity extends Activity {
         switch (requestCode) {
             case MULTIPLE_PERMISSIONS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permissions granted.
-                    //enableComponent(); // Now you call here what ever you want :)
                 } else {
                     String perStr = "";
                     for (String per : permissions) {
                         perStr += "\n" + per;
                     }
-                    // permissions list of don't granted permission
                     Toast.makeText(ComunicationActivity.this, "ATENCION: La aplicacion no funcionara " + "correctamente debido a la falta de Permisos", Toast.LENGTH_LONG).show();
                 }
                 return;
